@@ -42,14 +42,14 @@ const centro = req.params.centro_id;
   });
 }
 
-//TRAER DOCENTE SEGUN CARRERA
+//TRAER DOCENTEs SEGUN CARRERA
 export const docenteCarrera = (req, res) => {
   const nombreCarrera = req.params.nombre;
 
   // Construir la consulta SQL para obtener los docentes según la carrera
   const query = `SELECT Docentes.num_empleado, Docentes.nombres, Docentes.cargo, Carreras.nombre
                 FROM Docentes
-                JOIN Carreras ON Carreras.docente_id = Docentes.num_empleado 
+                JOIN Carreras ON Carreras.id = Docentes.carrera_id 
                 WHERE Carreras.nombre = ?`;
 
   // Ejecutar la consulta en la base de datos

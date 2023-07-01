@@ -1,5 +1,6 @@
-import {db} from '../db.js'
-import jwt from'jsonwebtoken';
+import { db } from '../db.js'
+import jwt from'jsonwebtoken'
+import nodemailer from'nodemailer'
 
 // ENDPOINT: CREAR UN DOCENTE
 export const creardocente = (req, res) => {
@@ -78,47 +79,103 @@ export const sesionestudiante = (req, res) => {
     })
 }
 
+
 // ENDPOINT: REGISTRAR ESTUDIANTES DESDE UN CSV
-export const registroCSV = async (req, res) => {
-    const jsonData = req.body; //recibo un json
-
-    try {
-        const maximo = await obtenerMaximoContador();
-        const max = maximo;
-        console.log(max);
-        var cont = 1;
-
-        for (const obj of jsonData) {
-            const { resultado, anio, cuatrimestre } = generarNumeroCuenta(max + cont);
-            const sql = 'INSERT INTO estudiante (num_cuenta, anio, cuatrimestre, contador, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, identidad, carrera, direccion, correo_personal, centro, correo_institucional, password_institucional) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?)';
-            const values = [resultado, anio, cuatrimestre, (max + cont), obj.primer_nombre, obj.segundo_nombre, obj.primer_apellido, obj.segundo_apellido, obj.identidad, obj.carrera, obj.direccion, obj.correo_personal, obj.centro, generarCorreo(obj.primer_nombre, resultado), generarContrasena()];
-
-            await new Promise((resolve, reject) => {
-                db.query(sql, values, (error, results) => {
-                    if (error) {
-                        console.error('Error al guardar los datos:', error);
-                        reject(error);
-                    } else {
-                        cont++;
-                        console.log('Datos guardados:', results);
-                        resolve();
-                    }
-                });
-            });
-        }
-
-        res.json({ message: 'Datos guardados correctamente' });
-    } catch (error) {
-        console.error('Error al guardar los datos:', error);
-        res.status(500).json({ error: 'Error al guardar los datos' });
+// Configuración de nodemailer
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: '07castro.carlos@gmail.com',
+      pass: 'falwoicxephoscez'
     }
-}
+  });
+
+  export const enviarCorreosEstudiantes = async () => {
+    try {
+      // Obtener el destinatario y el contenido del correo desde la base de datos
+      const results = await new Promise((resolve, reject) => {
+        db.query('SELECT correo_personal, correo_institucional, password_institucional FROM estudiantes', (error, results) => {
+          if (error) {
+            console.error('Error al obtener los correos de la base de datos:', error);
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      });
+  
+      // Enviar un correo a cada destinatario con un retraso de 1 segundo entre cada envío
+      for (const row of results) {
+        const { correo_personal, correo_institucional, password_institucional } = row;
+  
+        const mailOptions = {
+          from: '07castro.carlos@gmail.com',
+          to: correo_personal,
+          subject: 'Registro UNAH',
+          html: `<html><head><meta charset="UTF-8"><title>Mensaje de correo electrónico</title></head><body><div style="max-width: 600px; margin: 0 auto;"><h1>UNIVERSIDAD NACIONAL AUTONOMA DE HONDURAS</h1><p>Estimado/a estudiante el presente correo es para darle de manera oficial su correo y contraseña institucional,</p><p></p><p>Saludos,</p><p>Registro UNAH</p></div></body></html><b><p>Correo institucional:</b></p> ${correo_institucional}<p><b>Contraseña institucional:</b></p> ${password_institucional}`
+        };
+  
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Retraso de 1 segundo
+  
+        await transporter.sendMail(mailOptions);
+        console.log('Correo enviado:', correo_personal);
+      }
+  
+      console.log('Correos enviados correctamente');
+    } catch (error) {
+      console.error('Error al enviar los correos:', error);
+      throw error;
+    }
+  };
+  
+  export const registroCSV = async (req, res) => {
+    const jsonData = req.body; // Recibo un JSON
+  
+    try {
+      const maximo = await obtenerMaximoContador();
+      const max = maximo;
+      console.log(max);
+      var cont = 1;
+  
+      for (const obj of jsonData) {
+        const { resultado, anio, cuatrimestre } = generarNumeroCuenta(max + cont);
+        const sql = 'INSERT INTO estudiantes (num_cuenta, anio, cuatrimestre, contador, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, identidad, carrera, direccion, correo_personal, centro, correo_institucional, password_institucional) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?)';
+        const values = [resultado,anio,cuatrimestre,max + cont,obj.primer_nombre,obj.segundo_nombre,obj.primer_apellido,obj.segundo_apellido,obj.identidad,obj.carrera,obj.direccion,obj.correo_personal,obj.centro,
+          generarCorreo(obj.primer_nombre, resultado),
+          generarContrasena(),
+        ];
+  
+        await new Promise((resolve, reject) => {
+          db.query(sql, values, (error, results) => {
+            if (error) {
+              console.error('Error al guardar los datos:', error);
+              reject(error);
+            } else {
+              cont++;
+              console.log('Datos guardados:', results);
+              resolve();
+            }
+          });
+        });
+      }
+  
+      await enviarCorreosEstudiantes(); // Mover la llamada aquí
+  
+      res.json({ message: 'Datos guardados correctamente' });
+    } catch (error) {
+      console.error('Error al guardar los datos:', error);
+      res.status(500).json({ error: 'Error al guardar los datos' });
+    }
+  };
+  
+  
+
 
 //FUNCIONES
 // Obtener el número máximo de la columna "contador" de la tabla "estudiante"
 const obtenerMaximoContador = () => {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT MAX(contador) AS maximo FROM estudiante';
+        const sql = 'SELECT MAX(contador) AS maximo FROM estudiantes';
 
         db.query(sql, (error, results) => {
             if (error) {
