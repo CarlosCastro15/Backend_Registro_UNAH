@@ -18,12 +18,29 @@ export const getEstudiante = (req, res) => {
     })
 }
 
+//OBTENER NUMERO DE CUENTA, CARRERA, CENTRO Y CORREO INSTITUCIONAL DE ACUERDO AL NUMERO DE CUENTA DEL ESTUDIANTE
 export const getEstudianteId = (req, res) => {
     
     const estuId = req.params.num_cuenta;
       
-    const sql = `SELECT * FROM estudiante WHERE num_cuenta = ${estuId}`;
+    const sql = `SELECT num_cuenta, carrera, centro, correo_institucional FROM estudiante WHERE num_cuenta = ${estuId}`;
+    db.query(sql, (err, results) => {
+      if (err) {
+        console.error('Error al ejecutar la consulta: ', err);
+        res.status(500).json({ error: 'Error al obtener los datos del estudiante' });
+        return;
+      }
   
+      if (results.length === 0) {
+        res.status(404).json({ error: 'Estudiante no encontrado' });
+        return;
+      }
+  
+      const estudiante = results[0];
+      res.json(estudiante);
+    });
+
+    /*
     db.query(sql, [req.body.email, req.body.password], (err, data) => {
         if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
         if (data.length > 0) {
@@ -35,7 +52,7 @@ export const getEstudianteId = (req, res) => {
         } else {
             return res.json({ login: false, msg: 'Sin registro' })
         }
-    })
+    })*/
 }
 
 export const deleteEstudiante = (req, res) => {

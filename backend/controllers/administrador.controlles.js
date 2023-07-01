@@ -271,7 +271,7 @@ export const actualizarAdminPorId = (req, res) => {
         } else {
           res.json({ mensaje: 'Administrador actualizado exitosamente' });
         }
-      }
+}
       /*{
        if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
         if (data.length > 0) {

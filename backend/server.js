@@ -3,6 +3,8 @@ import cors from 'cors'
 import jwt from'jsonwebtoken';
 import administradorRoutes from './routes/administrador.routes.js'
 import estudianteRoutes from './routes/estudiante.routes.js'
+import envioscorreosEstudiantes from './routes/helpers.routes.js'
+import docenteRoutes from './routes/docente.routes.js'
 
 const app = express();
 app.use(cors());
@@ -10,6 +12,8 @@ app.use(express.json());
 
 app.use(administradorRoutes)
 app.use(estudianteRoutes)
+app.use(envioscorreosEstudiantes)
+app.use(docenteRoutes)
 
 // const generarCorreo = (nombre, apellido) => {
 //     var correo = nombre.toLowerCase() + "." + apellido.toLowerCase() + "@unah.hn";
