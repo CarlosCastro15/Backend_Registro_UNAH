@@ -1,30 +1,6 @@
 import {db} from '../db.js'
 import jwt from'jsonwebtoken';
 
-
-export const docentePorCarrera = (req, res) => {
- 
-    const columna = req.params.columna;
-    const valor = req.params.valor;
-
-        const sql = `SELECT * FROM docente WHERE ${columna} = ${valor}`;
-        db.query(sql, (err, results) => {
-          if (err) {
-            console.error('Error al ejecutar la consulta: ', err);
-            res.status(500).json({ error: 'Error al obtener los datos del Docente' });
-            return;
-          }
-      
-          if (results.length === 0) {
-            res.status(404).json({ error: 'Docente no encontrado' });
-            return;
-          }
-      
-          const estudiante = results[0];
-          res.json(estudiante);
-        });
-}
-
 //TRAER LAS CARRERAS SEGUN EL CENTRO
 export const carrerasCentro = (req, res) => {
 const centro = req.params.centro_id;
@@ -43,25 +19,27 @@ const centro = req.params.centro_id;
 }
 
 //TRAER DOCENTEs SEGUN CARRERA
-export const docenteCarrera = (req, res) => {
-  const nombreCarrera = req.params.nombre;
+export const docenteCarreraCentro = (req, res) => {
+  const Idcarrera = req.params.carrera;
+  const Idcentro = req.params.centro;
 
-  // Construir la consulta SQL para obtener los docentes según la carrera
-  const query = `SELECT Docentes.num_empleado, Docentes.nombres, Docentes.cargo, Carreras.nombre
-                FROM Docentes
-                JOIN Carreras ON Carreras.id = Docentes.carrera_id 
-                WHERE Carreras.nombre = ?`;
+  const sql = `SELECT docentes.num_empleado, docentes.nombres, docentes.apellidos, docentes.cargo, carreras.nombre, centros.nombre
+    FROM docentes 
+    JOIN carreras ON docentes.carrera_id = carreras.id
+    JOIN centros  ON carreras.centro_id = centros.id
+    WHERE carreras.nombre = ? AND centros.nombre = ? `;
 
-  // Ejecutar la consulta en la base de datos
-  db.query(query, [nombreCarrera], (error, results) => {
-    if (error) {
-      console.error('Error al ejecutar la consulta:', error);
-      res.status(500).json({ error: 'Ocurrió un error al obtener los docentes.' });
-    } else {
-      res.json(results);
+  // Ejecutar la consulta con los parámetros proporcionados
+  db.query(sql, [Idcarrera, Idcentro], (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta: ', err);
+      res.status(500).json({ error: 'Error interno del servidor' });
     }
+    res.json(results);
   });
 }
+
+
 
 //ACTUALIZAR EL CARGO DEL DOCENTE
 export const actualizarCargoDocente = (req, res) => {
