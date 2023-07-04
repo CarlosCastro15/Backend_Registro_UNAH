@@ -8,7 +8,7 @@ export const carrerasCentro = (req, res) => {
 const centro = req.params.centro_id;
 
   // Consulta a la base de datos
-  const query = `SELECT * FROM carreras WHERE centro_id = '${centro}'`;
+  const query = `SELECT * FROM carrera WHERE centro_id = '${centro}'`;
 
   db.query(query, (err, rows) => {
     if (err) {
@@ -25,11 +25,11 @@ export const docenteCarreraCentro = (req, res) => {
   const Idcarrera = req.params.carrera;
   const Idcentro = req.params.centro;
 
-  const sql = `SELECT docentes.num_empleado, docentes.nombres, docentes.apellidos, docentes.cargo, carreras.nombre, centros.nombre
-    FROM docentes 
-    JOIN carreras ON docentes.carrera_id = carreras.id
-    JOIN centros  ON carreras.centro_id = centros.id
-    WHERE carreras.nombre = ? AND centros.id = ? `;
+  const sql = `SELECT docente.num_empleado, docente.nombres, docente.apellidos, docente.cargo, carrera.nombre, centro.nombre
+    FROM docente
+    JOIN carrera ON docente.carrera_id = carrera.id
+    JOIN centro  ON carrera.centro_id = centro.id
+    WHERE carrera.nombre = ? AND centro.id = ? `;
 
   // Ejecutar la consulta con los parámetros proporcionados
   db.query(sql, [Idcarrera, Idcentro], (err, results) => {
@@ -49,7 +49,7 @@ export const actualizarCargoDocente = (req, res) => {
   const nuevoRol = req.body.cargo; // asumiendo que se envía el nuevo rol en el cuerpo de la solicitud
 
   // Construir la consulta SQL para actualizar el rol del docente
-  const sql = 'UPDATE docentes SET cargo = ? WHERE num_empleado = ?';
+  const sql = 'UPDATE docente SET cargo = ? WHERE num_empleado = ?';
 
   // Ejecutar la consulta en la base de datos
   db.query(sql, [nuevoRol, docenteId], (error, results) => {
@@ -109,7 +109,7 @@ export const envioCorreoDocente = (req, res) => {
   const { token, email, password } = req.body;
 
   // Actualizar la contraseña en la base de datos
-  const sql = 'UPDATE docentes SET password = ? WHERE correo = ?';
+  const sql = 'UPDATE docente SET password = ? WHERE correo = ?';
   db.query(sql, [password, email], (error, results) => {
     if (error) {
       console.log(error);

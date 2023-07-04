@@ -4,7 +4,7 @@ import nodemailer from'nodemailer'
 import crypto from 'crypto'
 
 export const getEstudiante = (req, res) => {
-    const sql = 'SELECT * FROM estudiantes';
+    const sql = 'SELECT * FROM estudiante';
 
     db.query(sql, [req.body.email, req.body.password], (err, data) => {
         if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
@@ -24,7 +24,7 @@ export const getEstudianteId = (req, res) => {
     
     const estuId = req.params.num_cuenta;
       
-    const sql = `SELECT * FROM estudiantes WHERE num_cuenta = ${estuId}`;
+    const sql = `SELECT * FROM estudiante WHERE num_cuenta = ${estuId}`;
   
     db.query(sql, [req.body.email, req.body.password], (err, data) => {
         if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
@@ -43,7 +43,7 @@ export const getEstudianteId = (req, res) => {
 export const deleteEstudiante = (req, res) => {
     const adminId = req.params.num_cuenta;
 
-    const sql = `DELETE FROM estudiantes WHERE num_cuenta = ${adminId}`;
+    const sql = `DELETE FROM estudiante WHERE num_cuenta = ${adminId}`;
   
     db.query(sql, (error, results) => {
       if (error) {
@@ -63,7 +63,7 @@ export const updateEstudiante = (req, res) => {
         const adminId = req.params.num_cuenta;
         const adminData = req.body; // Se espera que los datos a actualizar se envíen en el cuerpo de la solicitud
       
-        const query = `UPDATE estudiantes SET ? WHERE num_cuenta = ${adminId}`;
+        const query = `UPDATE estudiante SET ? WHERE num_cuenta = ${adminId}`;
       
         db.query(query, adminData, (error, results) => {
           if (error) {
@@ -137,7 +137,7 @@ export const envioCorreoEstudiante = (req, res) => {
     const { token, email, password } = req.body;
   
     // Actualizar la contraseña en la base de datos
-    const sql = 'UPDATE estudiantes SET password_institucional = ? WHERE correo_institucional = ?';
+    const sql = 'UPDATE estudiante SET password_institucional = ? WHERE correo_institucional = ?';
     db.query(sql, [password, email], (error, results) => {
       if (error) {
         console.log(error);

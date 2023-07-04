@@ -5,7 +5,7 @@ import nodemailer from'nodemailer'
 // ENDPOINT: CREAR UN DOCENTE
 export const creardocente = (req, res) => {
     // const sql = "INSERT INTO login (`name`, `email`, `password`) VALUES (?)";
-    const sql = "INSERT INTO docentes (nombres, apellidos, identidad, correo, password, foto, centro) VALUES (?,?,?,?,?,?,?)";
+    const sql = "INSERT INTO docente (nombres, apellidos, identidad, correo, password, foto, centro) VALUES (?,?,?,?,?,?,?)";
     const { nombres, apellidos, identidad, email, password, foto, centro } = req.body;
 
     const values = [nombres, apellidos, identidad, email, password, foto, centro];
@@ -41,7 +41,7 @@ export const sesionadministrador = (req, res) => {
 
 // ENDPOINT: INICIO DE SESION DE DOCENTE
 export const sesiondocente = (req, res) => {
-    const sql = "SELECT * FROM docentes WHERE correo = ? AND password = ?";
+    const sql = "SELECT * FROM docente WHERE correo = ? AND password = ?";
 
     db.query(sql, [req.body.email, req.body.password], (err, data) => {
         if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
@@ -61,7 +61,7 @@ export const sesiondocente = (req, res) => {
 
 // ENDPOINT: INICIO DE SESION DE ESTUDIANTE
 export const sesionestudiante = (req, res) => {
-    const sql = "SELECT * FROM estudiantes WHERE correo_institucional = ? AND password_institucional = ?";
+    const sql = "SELECT * FROM estudiante WHERE correo_institucional = ? AND password_institucional = ?";
 
     db.query(sql, [req.body.email, req.body.password], (err, data) => {
         if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
@@ -94,7 +94,7 @@ const transporter = nodemailer.createTransport({
     try {
       // Obtener el destinatario y el contenido del correo desde la base de datos
       const results = await new Promise((resolve, reject) => {
-        db.query('SELECT correo_personal, correo_institucional, password_institucional FROM estudiantes', (error, results) => {
+        db.query('SELECT correo_personal, correo_institucional, password_institucional FROM estudiante', (error, results) => {
           if (error) {
             console.error('Error al obtener los correos de la base de datos:', error);
             reject(error);
@@ -139,7 +139,7 @@ const transporter = nodemailer.createTransport({
   
       for (const obj of jsonData) {
         const { resultado, anio, cuatrimestre } = generarNumeroCuenta(max + cont);
-        const sql = 'INSERT INTO estudiantes (num_cuenta, anio, cuatrimestre, contador, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, identidad, carrera, direccion, correo_personal, centro, correo_institucional, password_institucional) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?)';
+        const sql = 'INSERT INTO estudiante (num_cuenta, anio, cuatrimestre, contador, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, identidad, carrera, direccion, correo_personal, centro, correo_institucional, password_institucional) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?)';
         const values = [resultado,anio,cuatrimestre,max + cont,obj.primer_nombre,obj.segundo_nombre,obj.primer_apellido,obj.segundo_apellido,obj.identidad,obj.carrera,obj.direccion,obj.correo_personal,obj.centro,
           generarCorreo(obj.primer_nombre, resultado),
           generarContrasena(),
@@ -175,7 +175,7 @@ const transporter = nodemailer.createTransport({
 // Obtener el número máximo de la columna "contador" de la tabla "estudiante"
 const obtenerMaximoContador = () => {
     return new Promise((resolve, reject) => {
-        const sql = 'SELECT MAX(contador) AS maximo FROM estudiantes';
+        const sql = 'SELECT MAX(contador) AS maximo FROM estudiante';
 
         db.query(sql, (error, results) => {
             if (error) {

@@ -6,7 +6,7 @@ import {db} from '../db.js'
     const { nombre_archivo, id_estudiante, id_docente } = req.body;
   const fotoPath = req.file.path;
 
-  const query = `INSERT INTO imagenes (nombre_archivo, id_estudiante, id_docente) VALUES (?, ?, ?)`;
+  const query = `INSERT INTO imagen (nombre_archivo, id_estudiante, id_docente) VALUES (?, ?, ?)`;
   const values = [fotoPath, id_estudiante, id_docente];
 
   db.query(query, values, (error, results) => {
