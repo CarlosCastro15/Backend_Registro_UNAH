@@ -1,5 +1,7 @@
 import {db} from '../db.js'
 import jwt from'jsonwebtoken';
+import nodemailer from'nodemailer'
+import crypto from 'crypto'
 
 //TRAER LAS CARRERAS SEGUN EL CENTRO
 export const carrerasCentro = (req, res) => {
@@ -27,7 +29,7 @@ export const docenteCarreraCentro = (req, res) => {
     FROM docentes 
     JOIN carreras ON docentes.carrera_id = carreras.id
     JOIN centros  ON carreras.centro_id = centros.id
-    WHERE carreras.nombre = ? AND centros.nombre = ? `;
+    WHERE carreras.nombre = ? AND centros.id = ? `;
 
   // Ejecutar la consulta con los parámetros proporcionados
   db.query(sql, [Idcarrera, Idcentro], (err, results) => {
@@ -59,3 +61,65 @@ export const actualizarCargoDocente = (req, res) => {
     }
   });
 };
+
+
+//ENDPOINT PARA ENVIO DE CORREO AL DOCENTE
+export const envioCorreoDocente = (req, res) => {
+  const { correo } = req.body;
+
+  // Generar token único con una caducidad de 2 minutos
+  const token = crypto.randomBytes(20).toString('hex');
+  const expiration = Date.now() + 2 * 60 * 1000; // 2 minutos en milisegundos
+
+  // Aquí deberías almacenar el token y la marca de tiempo de expiración en tu base de datos o sistema de almacenamiento
+
+  // Enviar el enlace de recuperación por correo electrónico
+  const transporter = nodemailer.createTransport({
+    // Configura tu proveedor de correo electrónico aquí
+    service: 'gmail',
+    auth: {
+      user: '07castro.carlos@gmail.com',
+      pass: 'falwoicxephoscez',
+    },
+  });
+
+  const resetUrl = `http://localhost:5173/docente/reset-password/${token}?expires=${expiration}&email=${correo}`;
+
+  const mailOptions = {
+    from: '07castro.carlos@gmail.com',
+    to: correo,
+    subject: 'Recuperación de contraseña',
+    text: `Haz clic en el siguiente enlace para restablecer tu contraseña: ${resetUrl}`,
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log(error);
+      res.status(500).json({ message: 'Error al enviar el correo electrónico.' });
+    } else {
+      console.log('Correo electrónico enviado: ' + info.response);
+      res.status(200).json({ message: 'Correo electrónico enviado con éxito.' });
+    }
+  });
+}
+
+
+// Endpoint para restablecer la contraseña AL DOCENTE
+ export const restaContraDocente = (req, res) => {
+  const { token, email, password } = req.body;
+
+  // Actualizar la contraseña en la base de datos
+  const sql = 'UPDATE docentes SET password = ? WHERE correo = ?';
+  db.query(sql, [password, email], (error, results) => {
+    if (error) {
+      console.log(error);
+      return res.status(500).json({ message: 'Error al restablecer la contraseña.' });
+    }
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: 'Correo electrónico no encontrado.' });
+    }
+
+    // Si todo va bien, enviar una respuesta exitosa
+    res.status(200).json({ message: 'Contraseña restablecida exitosamente.' });
+  });
+}
