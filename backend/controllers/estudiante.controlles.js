@@ -38,7 +38,7 @@ export const getEstudianteId = (req, res) => {
       const estudiante = results[0];
       res.json(estudiante);
     });
-  }
+}
 
 
 export const deleteEstudiante = (req, res) => {
@@ -150,5 +150,20 @@ export const envioCorreoEstudiante = (req, res) => {
   
       // Si todo va bien, enviar una respuesta exitosa
       res.status(200).json({ message: 'Contraseña restablecida exitosamente.' });
+    });
+  }
+
+  export const actualizarEstuDescri = (req, res) => {
+    const numCuenta = req.params.num_cuenta;
+    const nuevaDescripcion = req.body.descripcion;
+  
+    const sql = 'UPDATE estudiante SET descripcion = ? WHERE num_cuenta = ?';
+    db.query(sql, [nuevaDescripcion, numCuenta], (error, results) => {
+      if (error) {
+        console.error('Error al actualizar la descripción:', error);
+        res.status(500).send('Error al actualizar la descripción del estudiante');
+      } else {
+        res.send('Descripción del estudiante actualizada correctamente');
+      }
     });
   }

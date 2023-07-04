@@ -139,8 +139,8 @@ const transporter = nodemailer.createTransport({
   
       for (const obj of jsonData) {
         const { resultado, anio, cuatrimestre } = generarNumeroCuenta(max + cont);
-        const sql = 'INSERT INTO estudiante (num_cuenta, anio, cuatrimestre, contador, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, identidad, carrera, direccion, correo_personal, centro, correo_institucional, password_institucional) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?)';
-        const values = [resultado,anio,cuatrimestre,max + cont,obj.primer_nombre,obj.segundo_nombre,obj.primer_apellido,obj.segundo_apellido,obj.identidad,obj.carrera,obj.direccion,obj.correo_personal,obj.centro,
+        const sql = 'INSERT INTO estudiante (num_cuenta, anio, cuatrimestre, contador, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, identidad, carrera, indice, direccion, correo_personal, centro, correo_institucional, password_institucional) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?)';
+        const values = [resultado,anio,cuatrimestre,max + cont,obj.primer_nombre,obj.segundo_nombre,obj.primer_apellido,obj.segundo_apellido,obj.identidad,obj.carrera,obj.indice,obj.direccion,obj.correo_personal,obj.centro,
           generarCorreo(obj.primer_nombre, resultado),
           generarContrasena(),
         ];
