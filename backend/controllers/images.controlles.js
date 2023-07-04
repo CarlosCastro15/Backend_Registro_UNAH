@@ -1,5 +1,5 @@
 import {db} from '../db.js'
-
+import fs from 'fs';
 
   export const cargarimagen = (req, res) => {
     
@@ -19,6 +19,9 @@ import {db} from '../db.js'
     }
   });
 }
+
+//obtenerImagenes 
+
 export const obtenerImagenes  = (req, res) => {
   const { id_estudiante, id_docente } = req.query;
 
@@ -38,3 +41,4 @@ export const obtenerImagenes  = (req, res) => {
     }
   });
 };
+
