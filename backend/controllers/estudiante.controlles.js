@@ -21,24 +21,25 @@ export const getEstudiante = (req, res) => {
 }
 
 export const getEstudianteId = (req, res) => {
-    
-    const estuId = req.params.num_cuenta;
-      
-    const sql = `SELECT * FROM estudiante WHERE num_cuenta = ${estuId}`;
+    const idEstudiante = req.params.num_cuenta;
   
-    db.query(sql, [req.body.email, req.body.password], (err, data) => {
-        if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
-        if (data.length > 0) {
-            const id = data[0].num_cuenta;
-            const token = jwt.sign({ id }, 'grupo3', { expiresIn: 60 });
+    const sql = 'SELECT * FROM estudiante WHERE num_cuenta = ?';
+    db.query(sql, [idEstudiante], (err, results) => {
+      if (err) {
+        console.error('Error al obtener el estudiante: ' + err);
+        res.status(500).json({ error: 'Error al obtener el estudiante' });
+        return;
+      }
+  
+      if (results.length === 0) {
+        res.status(404).json({ error: 'Estudiante no encontrado' });
+        return;
+      }
+      const estudiante = results[0];
+      res.json(estudiante);
+    });
+  }
 
-            return res.json({ login: true, usuario: data, token: token });
-
-        } else {
-            return res.json({ login: false, msg: 'Sin registro' })
-        }
-    })
-}
 
 export const deleteEstudiante = (req, res) => {
     const adminId = req.params.num_cuenta;
