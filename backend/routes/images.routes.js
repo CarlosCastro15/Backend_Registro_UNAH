@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {cargarimagen} from '../controllers/images.controlles.js'
+import {cargarimagen,obtenerImagenes } from '../controllers/images.controlles.js'
 import { verifyJwt } from '../helpers/verifyJwt.js'
 import multer from 'multer';
 
@@ -16,5 +16,5 @@ const router = Router()
 
 // ENDPOINT: cargar imagen
 router.post('/cargarimagen',upload.single('foto'), cargarimagen )
-
+router.get('/obtenerImagenes', obtenerImagenes  )
 export default router 
