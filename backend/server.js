@@ -4,19 +4,23 @@ import jwt from'jsonwebtoken';
 import administradorRoutes from './routes/administrador.routes.js'
 import estudianteRoutes from './routes/estudiante.routes.js'
 import imagesRoutes from './routes/images.routes.js'
-import docenteRoutes from './routes/docente.routes.js'
-
-import mysql from 'mysql2';
+import path  from 'path'
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import bodyParser from 'body-parser';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 
 const app = express();
-app.use(cors());
+app.use(bodyParser.json());
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 app.use(imagesRoutes) 
 app.use(administradorRoutes)
 app.use(estudianteRoutes)
-app.use(docenteRoutes)
+app.use(express.static(path.join(__dirname, 'uploads')));
 
 
 // const generarCorreo = (nombre, apellido) => {
@@ -26,4 +30,5 @@ app.use(docenteRoutes)
 app.listen(8081, () => {
     console.log('Listening...');
 })
+
 
