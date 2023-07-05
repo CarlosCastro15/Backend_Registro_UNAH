@@ -44,10 +44,10 @@ export const obtenerImagenes  = (req, res) => {
 };
 
 export const eliminarImagen = (req, res) => {
-  const { id, nombre_archivo } = req.body;
+  const { id } = req.body;
 
-  const query = 'DELETE FROM imagen WHERE id = ? AND nombre_archivo = ?';
-  const values = [id, nombre_archivo];
+  const query = 'DELETE FROM imagen WHERE id = ? ';
+  const values = [id];
   console.log(req.body)
 
   db.query(query, values, (error, results) => {
