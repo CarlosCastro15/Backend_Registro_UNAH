@@ -36,7 +36,7 @@ export const obtenerImagenes  = (req, res) => {
       const imagenes = results.map((imagen) => ({
         id: imagen.id,
         url: `http://localhost:8081/${imagen.nombre_archivo}`,
-        nombre: imagen.id,
+        nombre: imagen.nombre_archivo,
       }));
       res.status(200).json(imagenes);
     }
