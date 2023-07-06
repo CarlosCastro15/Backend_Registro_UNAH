@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {carrerasCentro,docenteCarreraCentro,actualizarCargoDocente,envioCorreoDocente,restaContraDocente} from '../controllers/docente.controlles.js'
+import {carrerasCentro,docenteCarreraCentro,actualizarCargoDocente,envioCorreoDocente,restaContraDocente,docenteCarreraCentroById, getDocenteById} from '../controllers/docente.controlles.js'
 
 const router = Router()
 
@@ -16,6 +16,10 @@ router.put('/docentes/:cargo/:num_empleado', actualizarCargoDocente)
 router.post('/forgot-password-docente', envioCorreoDocente)
 
 router.post('/reset-password-docente', restaContraDocente)
+
+router.get('/docentes/:carrera/:centro', docenteCarreraCentroById)
+
+router.get('/docente/:id', getDocenteById)
 
 
 export default router 
