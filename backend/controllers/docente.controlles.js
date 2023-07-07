@@ -88,7 +88,7 @@ export const envioCorreoDocente = (req, res) => {
   const mailOptions = {
     from: '07castro.carlos@gmail.com',
     to: correo,
-    subject: 'Recuperación de contraseña',
+    subject: 'Reestablecer de contraseña',
     text: `Haz clic en el siguiente enlace para restablecer tu contraseña: ${resetUrl}`,
   };
 
