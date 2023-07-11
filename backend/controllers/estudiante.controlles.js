@@ -167,3 +167,42 @@ export const envioCorreoEstudiante = (req, res) => {
       }
     });
   }
+
+
+  //listar los alumnos segun el id de la clase
+  export const clasesAlumno = (req, res) => {
+    const IdClase = req.params.id_clase;
+    
+    const sql = `SELECT e.num_cuenta, e.primer_nombre, e.primer_apellido
+                FROM estudiante e
+                JOIN matricula m ON e.num_cuenta = m.num_cuenta
+                JOIN seccion s ON m.id_seccion = s.id_seccion
+                WHERE s.id_clase = ? `;
+  
+    // Ejecutar la consulta con los parámetros proporcionados
+    db.query(sql, [IdClase], (err, results) => {
+      if (err) {
+        console.error('Error al ejecutar la consulta: ', err);
+        res.status(500).json({ error: 'Error interno del servidor' });
+      }
+      res.json(results);
+    });
+  }
+
+  //editar nota del estudiante 
+  
+  export const notaEstudiante = (req, res) => {
+    const numCuenta = req.params.num_cuenta;
+    const nuevaNota = req.body.nota;
+  
+    const sql = 'UPDATE estudiante SET nota = ? WHERE num_cuenta = ?';
+    
+    db.query(sql, [nuevaNota, numCuenta], (error, results) => {
+      if (error) {
+        console.error('Error al actualizar la descripción:', error);
+        res.status(500).send('Error al actualizar la descripción del estudiante');
+      } else {
+        res.send('Nota del estudiante actualizada correctamente');
+      }
+    });
+  }

@@ -90,11 +90,11 @@ const transporter = nodemailer.createTransport({
     }
   });
 
-  export const enviarCorreosEstudiantes = async () => {
+  export const enviarCorreosEstudiantes = async (nuevosEstudiantes) => {
     try {
       // Obtener el destinatario y el contenido del correo desde la base de datos
       const results = await new Promise((resolve, reject) => {
-        db.query('SELECT correo_personal, correo_institucional, password_institucional FROM estudiante', (error, results) => {
+        db.query('SELECT num_cuenta, correo_personal, correo_institucional, password_institucional, identidad FROM estudiante', (error, results) => {
           if (error) {
             console.error('Error al obtener los correos de la base de datos:', error);
             reject(error);
@@ -104,15 +104,23 @@ const transporter = nodemailer.createTransport({
         });
       });
   
+      // Filtrar los resultados para evitar el envío de correos duplicados
+        const filteredResults = results.filter((row) => {
+        const isNewStudent = nuevosEstudiantes.some(
+          (newStudent) => newStudent.identidad === row.identidad
+        );
+        return isNewStudent;
+      });
+  
       // Enviar un correo a cada destinatario con un retraso de 1 segundo entre cada envío
-      for (const row of results) {
-        const { correo_personal, correo_institucional, password_institucional } = row;
+      for (const row of filteredResults) {
+        const {num_cuenta, correo_personal, correo_institucional, password_institucional, identidad } = row;
   
         const mailOptions = {
           from: '07castro.carlos@gmail.com',
           to: correo_personal,
           subject: 'Registro UNAH',
-          html: `<html><head><meta charset="UTF-8"><title>Mensaje de correo electrónico</title></head><body><div style="max-width: 600px; margin: 0 auto;"><h1>UNIVERSIDAD NACIONAL AUTONOMA DE HONDURAS</h1><p>Estimado/a estudiante el presente correo es para darle de manera oficial su correo y contraseña institucional,</p><p></p><p>Saludos,</p><p>Registro UNAH</p></div></body></html><b><p>Correo institucional:</b></p> ${correo_institucional}<p><b>Contraseña institucional:</b></p> ${password_institucional}`
+          html: `<html><head><meta charset="UTF-8"><title>Mensaje de correo electrónico</title></head><body><div style="max-width: 600px; margin: 0 auto;"><h1>UNIVERSIDAD NACIONAL AUTONOMA DE HONDURAS</h1><p>Estimado/a estudiante el presente correo es para darle de manera oficial su correo y contraseña institucional,</p><p></p><p>Saludos,</p><p>Registro UNAH</p><b><p>Numero de Cuenta:</b></p> ${num_cuenta}<b><p>Correo institucional:</b></p> ${correo_institucional}<p><b>Contraseña institucional:</b></p> ${password_institucional}</div></body></html>`
         };
   
         await new Promise((resolve) => setTimeout(resolve, 1000)); // Retraso de 1 segundo
@@ -127,7 +135,7 @@ const transporter = nodemailer.createTransport({
       throw error;
     }
   };
-  
+  /////
   export const registroCSV = async (req, res) => {
     const jsonData = req.body; // Recibo un JSON
   
@@ -136,12 +144,47 @@ const transporter = nodemailer.createTransport({
       const max = maximo;
       console.log(max);
       var cont = 1;
+      const nuevosEstudiantes = []; //Almacenar los nuevos estudiantes aqui
   
       for (const obj of jsonData) {
+        // Verificar si la identidad ya existe en la base de datos
+        const identidadExistente = await new Promise((resolve, reject) => {
+          const sql = 'SELECT COUNT(*) as count FROM estudiante WHERE identidad = ?';
+          db.query(sql, [obj.identidad], (error, results) => {
+            if (error) {
+              console.error('Error al verificar la identidad:', error);
+              reject(error);
+            } else {
+              resolve(results[0].count > 0);
+            }
+          });
+        });
+  
+        if (identidadExistente) {
+          console.log('La identidad ya existe en la base de datos:', obj.identidad);
+          continue; // Saltar a la siguiente iteración sin insertar datos ni enviar el correo
+        }
+        
+
+        // Insertar los datos en la base de datos
         const { resultado, anio, cuatrimestre } = generarNumeroCuenta(max + cont);
         const sql = 'INSERT INTO estudiante (num_cuenta, anio, cuatrimestre, contador, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, identidad, carrera, indice, direccion, correo_personal, centro, correo_institucional, password_institucional) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?)';
-        const values = [resultado,anio,cuatrimestre,max + cont,obj.primer_nombre,obj.segundo_nombre,obj.primer_apellido,obj.segundo_apellido,obj.identidad,obj.carrera,obj.indice,obj.direccion,obj.correo_personal,obj.centro,
-          generarCorreo(obj.primer_nombre, resultado),
+        const values = [
+          resultado,
+          anio,
+          cuatrimestre,
+          max + cont,
+          obj.primer_nombre,
+          obj.segundo_nombre,
+          obj.primer_apellido,
+          obj.segundo_apellido,
+          obj.identidad,
+          obj.carrera,
+          obj.indice,
+          obj.direccion,
+          obj.correo_personal,
+          obj.centro,
+          generarCorreo(obj.primer_nombre,obj.primer_apellido, max + cont),
           generarContrasena(),
         ];
   
@@ -157,9 +200,17 @@ const transporter = nodemailer.createTransport({
             }
           });
         });
+
+        //Agregar a los esudiantes a la lista de nuevos estudiantes 
+        nuevosEstudiantes.push(obj);
       }
-  
-      await enviarCorreosEstudiantes(); // Mover la llamada aquí
+      
+      
+
+      // Verificar si hay nuevos registros antes de enviar los correos
+      if (nuevosEstudiantes.length > 0) {
+        await enviarCorreosEstudiantes(nuevosEstudiantes);
+      }
   
       res.json({ message: 'Datos guardados correctamente' });
     } catch (error) {
@@ -191,8 +242,8 @@ const obtenerMaximoContador = () => {
 //En el correo vamos añadirle los ultimos 4 digitos del numero de cuenta
 // angel.1000@unah.edu
 
-const generarCorreo = (nombre, numcuenta) => {
-    var correo = nombre.toLowerCase() + "." + numcuenta + "@unah.hn";
+const generarCorreo = (nombre, apellido, contador) => {
+    var correo = nombre.toLowerCase() + "." + apellido.toLowerCase() + contador + "@unah.hn";
     return correo;
 }
 

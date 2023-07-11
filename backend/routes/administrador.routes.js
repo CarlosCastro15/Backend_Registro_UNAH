@@ -1,7 +1,9 @@
 import {Router} from 'express'
 import {creardocente,sesionadministrador,sesiondocente,sesionestudiante,registroCSV,autenticado,getAdministrador,getAdministradorId,createAdministrador,deleteAdministrador,actualizarAdminPorId} from '../controllers/administrador.controlles.js'
 import { verifyJwt } from '../helpers/verifyJwt.js'
+import multer from 'multer'
 
+const upload = multer({ dest: 'csv/' });
 const router = Router()
 
 // ENDPOINT: CREAR UN DOCENTE
@@ -17,7 +19,9 @@ router.post('/login/docente', sesiondocente)
 router.post('/login/estudiante', sesionestudiante)
 
 // ENDPOINT: REGISTRAR ESTUDIANTES DESDE UN CSV
-router.post('/registro/estudiante', registroCSV);
+// Manejar la carga de archivos
+//app.post('/upload', upload.single('csvFile'), registroCSV);
+router.post('/registro/estudiante',upload.single('csvFile'), registroCSV);
 
 router.get('/checktauth', verifyJwt, autenticado)
 
