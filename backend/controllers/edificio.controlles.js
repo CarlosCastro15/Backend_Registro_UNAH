@@ -37,3 +37,18 @@ export const aulasDisponibles = (req, res) => {
       res.json(results);
     });
   }
+
+  export const proceso = (req, res) => {
+    
+    // Consulta a la base de datos
+    const query = `SELECT * FROM proceso`;
+  
+    db.query(query, (err, rows) => {
+      if (err) {
+        console.error('Error al ejecutar la consulta: ', err);
+        res.status(500).send('Error del servidor');
+      } else {
+        res.json(rows);
+      }
+    });
+}

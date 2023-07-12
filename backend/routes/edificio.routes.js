@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {EdificioID,aulasDisponibles} from '../controllers/edificio.controlles.js'
+import {EdificioID,aulasDisponibles,proceso} from '../controllers/edificio.controlles.js'
 
 const router = Router()
 
@@ -8,5 +8,8 @@ router.get('/edificio', EdificioID)
 
 //traer aulas disponibles //DAVID
 router.get('/aulas-disponibles', aulasDisponibles) 
+
+//traer el proceso de matricula //DAVID
+router.get('/proceso', proceso)
 
 export default router 
