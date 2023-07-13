@@ -88,7 +88,7 @@ export const envioCorreoDocente = (req, res) => {
   const mailOptions = {
     from: '07castro.carlos@gmail.com',
     to: correo,
-    subject: 'Reestablecer de contraseña',
+    subject: 'Recuperación de contraseña',
     text: `Haz clic en el siguiente enlace para restablecer tu contraseña: ${resetUrl}`,
   };
 
@@ -121,50 +121,5 @@ export const envioCorreoDocente = (req, res) => {
 
     // Si todo va bien, enviar una respuesta exitosa
     res.status(200).json({ message: 'Contraseña restablecida exitosamente.' });
-  });
-}
-
-
-export const getDocenteById = (req, res) => {
-  const id = req.params.id;
-
-  const sql = `SELECT docente.num_empleado, docente.nombres, docente.apellidos, docente.correo, docente.identidad, docente.cargo, carrera.nombre AS carrera, docente.centro_id FROM docente
-  JOIN carrera ON docente.carrera_id = carrera.id
-  WHERE docente.num_empleado = ${id}`;
-
-  db.query(sql, [req.body.email, req.body.password], (err, data) => {
-    if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
-    if (data.length > 0) {
-      const id = data[0].num_empleado;
-      const token = jwt.sign({ id }, 'grupo3', { expiresIn: 60 });
-
-      return res.json(data);
-
-    } else {
-      return res.json({ login: false, msg: 'Sin registro' })
-    }
-  })
-}
-
-export const docenteCarreraCentroById = (req, res) => {
-  const Idcarrera = req.params.carrera;
-  const Idcentro = req.params.centro;
-
-
-  const sql = `SELECT docente.num_empleado, docente.nombres, docente.apellidos, docente.identidad, docente.correo, docente.cargo, 
-              carrera.nombre AS carrera, docente.centro_id AS centro,
-              (SELECT nombre FROM centro WHERE id = docente.centro_id) AS nombre_centro
-              FROM docente
-              JOIN carrera ON docente.carrera_id = carrera.id
-              JOIN centro ON carrera.centro_id = centro.id
-              WHERE carrera.nombre = ? AND docente.centro_id = ?;`;
-
-  // Ejecutar la consulta con los parámetros proporcionados
-  db.query(sql, [Idcarrera, Idcentro], (err, results) => {
-    if (err) {
-      console.error('Error al ejecutar la consulta: ', err);
-      res.status(500).json({ error: 'Error interno del servidor' });
-    }
-    res.json(results);
   });
 }

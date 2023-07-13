@@ -1,5 +1,7 @@
 import {Router} from 'express'
-import {CrearSolicitud} from '../controllers/Solicitud.controlles.js'
+import {crearSolicitud,
+    obtenerSolicitudesPorCoordinador} from '../controllers/Solicitud.controlles.js'
 const router = Router()
-router.post('/Crear_Solicitud', CrearSolicitud)
+router.post('/Crear_Solicitud', crearSolicitud)
+router.get('/Solicitudes_Coordinador', obtenerSolicitudesPorCoordinador)
 export default router 

@@ -5,6 +5,7 @@ import administradorRoutes from './routes/administrador.routes.js'
 import estudianteRoutes from './routes/estudiante.routes.js'
 import imagesRoutes from './routes/images.routes.js'
 import docenteRoutes from './routes/docente.routes.js'
+import solicitudRoutes from './routes/Solicitude.router.js'
 import path  from 'path'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -22,6 +23,7 @@ app.use(imagesRoutes)
 app.use(administradorRoutes)
 app.use(estudianteRoutes)
 app.use(docenteRoutes)
+app.use(solicitudRoutes)
 app.use(express.static(path.join(__dirname, 'uploads')));
 
 
