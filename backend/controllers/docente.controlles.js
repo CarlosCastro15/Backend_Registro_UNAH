@@ -196,14 +196,20 @@ export const clasesDocente = (req, res) => {
 //docente por medio de carrera
 export const docentecarreranombre = (req, res) => {
   const CarreraNombre = req.params.nombre;
+  const CentroNombre = req.params.centro
   
-  const sql = `SELECT d.nombres
+  const sql = `SELECT d.num_empleado, d.nombres, d.apellidos
               FROM docente d
               JOIN carrera c ON d.carrera_id = c.id
-              WHERE c.nombre = ?`;
+              JOIN centro ct ON d.centro_id = ct.id
+              WHERE c.nombre = ?
+              AND ct.nombre = ?
+              AND (
+              SELECT COUNT(*) FROM seccion s WHERE s.num_empleado = d.num_empleado
+              ) < 3`;
 
   // Ejecutar la consulta con los parámetros proporcionados
-  db.query(sql, [CarreraNombre], (err, results) => {
+  db.query(sql, [CarreraNombre,CentroNombre], (err, results) => {
     if (err) {
       console.error('Error al ejecutar la consulta: ', err);
       res.status(500).json({ error: 'Error interno del servidor' });

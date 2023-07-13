@@ -10,7 +10,7 @@ export const creardocente = (req, res) => {
 
     const values = [nombres, apellidos, identidad, email, password, foto, centro];
 
-    //la funcion que envie cooreo generado, contraseñagenerada, numCuenta
+    
     db.query(sql, values, (err, data) => {
         if (err) {
             return res.json("Error");

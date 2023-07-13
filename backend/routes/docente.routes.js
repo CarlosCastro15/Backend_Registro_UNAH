@@ -25,7 +25,7 @@ router.get('/docente/:id', getDocenteById)
 router.get('/clasesdocentes/:num_empleado', clasesDocente)
 
 //docente por medio de carrera  //DAVID
-router.get('/docentecarreranombre/:nombre', docentecarreranombre)
+router.get('/docentecarreranombre/:nombre/:centro', docentecarreranombre)
 
 
 export default router 
