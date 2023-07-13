@@ -1,11 +1,11 @@
-import {db} from '../db.js'
-import jwt from'jsonwebtoken';
-import nodemailer from'nodemailer'
+import { db } from '../db.js'
+import jwt from 'jsonwebtoken';
+import nodemailer from 'nodemailer'
 import crypto from 'crypto'
 
 //TRAER LAS CARRERAS SEGUN EL CENTRO
 export const carrerasCentro = (req, res) => {
-const centro = req.params.centro_id;
+  const centro = req.params.centro_id;
 
   // Consulta a la base de datos
   const query = `SELECT * FROM carrera WHERE centro_id = '${centro}'`;
@@ -105,7 +105,7 @@ export const envioCorreoDocente = (req, res) => {
 
 
 // Endpoint para restablecer la contraseña AL DOCENTE
- export const restaContraDocente = (req, res) => {
+export const restaContraDocente = (req, res) => {
   const { token, email, password } = req.body;
 
   // Actualizar la contraseña en la base de datos
@@ -173,7 +173,7 @@ export const docenteCarreraCentroById = (req, res) => {
 //clases segun id del docente
 export const clasesDocente = (req, res) => {
   const IdDocente = req.params.num_empleado;
-  
+
   const sql = `SELECT c.id_clase, c.nombre
               FROM clase c
               JOIN seccion s ON c.id_clase = s.id_clase
@@ -197,7 +197,7 @@ export const clasesDocente = (req, res) => {
 export const docentecarreranombre = (req, res) => {
   const CarreraNombre = req.params.nombre;
   const CentroNombre = req.params.centro
-  
+
   const sql = `SELECT d.num_empleado, d.nombres, d.apellidos
               FROM docente d
               JOIN carrera c ON d.carrera_id = c.id
@@ -209,11 +209,30 @@ export const docentecarreranombre = (req, res) => {
               ) < 3`;
 
   // Ejecutar la consulta con los parámetros proporcionados
-  db.query(sql, [CarreraNombre,CentroNombre], (err, results) => {
+  db.query(sql, [CarreraNombre, CentroNombre], (err, results) => {
     if (err) {
       console.error('Error al ejecutar la consulta: ', err);
       res.status(500).json({ error: 'Error interno del servidor' });
     }
     res.json(results);
+  });
+}
+
+export const centroById = (req, res) => {
+  const centro = req.params.centro_id;
+
+  // Consulta a la base de datos
+  const query = `SELECT d.num_empleado, d.nombres, d.apellidos, c.nombre AS nombre_centro
+    FROM docente d
+    JOIN centro c ON d.centro_id = c.id
+    WHERE d.num_empleado = '${centro}'`;
+
+  db.query(query, (err, rows) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta: ', err);
+      res.status(500).send('Error del servidor');
+    } else {
+      res.json(rows);
+    }
   });
 }

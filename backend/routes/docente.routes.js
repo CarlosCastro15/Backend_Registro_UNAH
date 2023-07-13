@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {carrerasCentro,docenteCarreraCentro,actualizarCargoDocente,envioCorreoDocente,restaContraDocente,docenteCarreraCentroById, getDocenteById,clasesDocente,docentecarreranombre} from '../controllers/docente.controlles.js'
+import {carrerasCentro,docenteCarreraCentro,actualizarCargoDocente,envioCorreoDocente,restaContraDocente,docenteCarreraCentroById, getDocenteById,clasesDocente,docentecarreranombre, centroById} from '../controllers/docente.controlles.js'
 
 const router = Router()
 
@@ -7,6 +7,9 @@ const router = Router()
 //router.get('/docente/:columna/:valor', docentePorCarrera)
 
 router.get('/carreras/:centro_id',carrerasCentro)
+
+//Obtener centro by ID del docente-----------
+router.get('/carrerById/:centro_id',centroById)
 
 //router.get('/docente/:nombre/:nombre',docenteCarrera)
 router.get('/docente/:carrera/:centro', docenteCarreraCentro)
