@@ -168,7 +168,7 @@ const transporter = nodemailer.createTransport({
 
         // Insertar los datos en la base de datos
         const { resultado, anio, cuatrimestre } = generarNumeroCuenta(max + cont);
-        const sql = 'INSERT INTO estudiante (num_cuenta, anio, cuatrimestre, contador, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, identidad, carrera, indice, direccion, correo_personal, centro, correo_institucional, password_institucional) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?)';
+        const sql = 'INSERT INTO estudiante (num_cuenta, anio, cuatrimestre, contador, primer_nombre, segundo_nombre, primer_apellido, segundo_apellido, identidad, indice, direccion, correo_personal, nota, correo_institucional, password_institucional, carrera_id, centro_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ? ,?, ?, ?, ?, ?, ?, ?, ?)';
         const values = [
           resultado,
           anio,
@@ -179,13 +179,14 @@ const transporter = nodemailer.createTransport({
           obj.primer_apellido,
           obj.segundo_apellido,
           obj.identidad,
-          obj.carrera,
           obj.indice,
           obj.direccion,
           obj.correo_personal,
-          obj.centro,
+          obj.nota,
           generarCorreo(obj.primer_nombre,obj.primer_apellido, max + cont),
           generarContrasena(),
+          obj.carrera_id,
+          obj.centro_id,
         ];
   
         await new Promise((resolve, reject) => {
