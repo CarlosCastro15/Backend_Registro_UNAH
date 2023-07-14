@@ -174,13 +174,10 @@ export const docenteCarreraCentroById = (req, res) => {
 export const clasesDocente = (req, res) => {
   const IdDocente = req.params.num_empleado;
 
-  const sql = `SELECT c.id_clase, c.nombre
-              FROM clase c
-              JOIN seccion s ON c.id_clase = s.id_clase
-              JOIN matricula m ON s.id_seccion = m.id_seccion
-              JOIN estudiante e ON m.num_cuenta = e.num_cuenta
-              JOIN docente d ON s.num_empleado = d.num_empleado
-              WHERE d.num_empleado = ? `;
+  const sql = `SELECT seccion.*, clase.nombre AS nombre_clase
+               FROM seccion
+               INNER JOIN clase ON seccion.id_clase = clase.id_clase
+               WHERE seccion.num_empleado = ? `;
 
   // Ejecutar la consulta con los parámetros proporcionados
   db.query(sql, [IdDocente], (err, results) => {
