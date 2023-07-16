@@ -20,3 +20,34 @@ export const clasesCarrera = (req, res) => {
       res.json(results);
     });
   }
+
+//te trae las clases del estudiante que todavia no ha pasado (segun num_cuenta) //DAVID
+export const clasesNoPasadas = (req, res) => {
+    const numCuenta = req.params.num_cuenta;
+  
+    // Consulta SQL
+    const sqlQuery = `
+      SELECT cl.id_clase, cl.nombre
+      FROM clase cl
+      WHERE cl.id_carrera = (
+          SELECT carrera_id
+          FROM estudiante
+          WHERE num_cuenta = ?
+      )
+      AND cl.id_clase NOT IN (
+          SELECT cp.id_clase
+          FROM clase_pasada cp
+          WHERE cp.id_estudiante = ?
+      )
+    `;
+  
+    // Ejecución de la consulta
+    db.query(sqlQuery, [numCuenta, numCuenta], (error, results) => {
+      if (error) {
+        console.error('Error al ejecutar la consulta: ', error);
+        res.status(500).json({ error: 'Error al ejecutar la consulta' });
+      } else {
+        res.json(results);
+      }
+    });
+  };

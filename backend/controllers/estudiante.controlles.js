@@ -173,7 +173,7 @@ export const envioCorreoEstudiante = (req, res) => {
   export const clasesAlumno = (req, res) => {
     const IdClase = req.params.id_clase;
     
-    const sql = `SELECT e.nota, e.num_cuenta, e.primer_nombre, e.primer_apellido
+    const sql = `SELECT e.nota, e.num_cuenta, e.primer_nombre, e.primer_apellido, e.correo_institucional
                 FROM estudiante e
                 JOIN matricula m ON e.num_cuenta = m.num_cuenta
                 JOIN seccion s ON m.id_seccion = s.id_seccion

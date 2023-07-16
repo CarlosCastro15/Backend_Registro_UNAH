@@ -70,7 +70,7 @@ export const crearSeccion = (req, res) => {
     const idSeccion = req.params.id_seccion;
     const nuevoCupos = req.body.cupos;
   
-    const sql = 'UPDATE secciom SET cupos = ? WHERE id_seccion = ?';
+    const sql = 'UPDATE seccion SET cupos = ? WHERE id_seccion = ?';
     db.query(sql, [idSeccion, nuevoCupos], (error, results) => {
       if (error) {
         console.error('Error al actualizar los cupos:', error);
