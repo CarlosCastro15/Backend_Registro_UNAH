@@ -44,10 +44,10 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
     const { num_empleado } = req.query;;
     const values = [num_empleado,];
     const query = `
-      SELECT *
-      FROM solicitud
-      WHERE num_empleado = ?
-    `;
+    SELECT *
+    FROM solicitud
+    WHERE num_empleado = ? AND estado = 'pendiente'
+  `;
   
     db.query(query,values, (error, results) => {
       if (error) {
@@ -56,6 +56,25 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
       } else {
         res.status(200).json(results);
         console.log('Solicitudes obtenidas:', results);
+      }
+    });
+  };
+  export const ActualizarEstado = (req, res) => {
+    const { id } = req.params;
+    const { estado } = req.body;
+    const query = `
+      UPDATE solicitud
+      SET estado = ?
+      WHERE id = ?
+    `;
+    const values = [estado, id];
+  
+    db.query(query, values, (err, result) => {
+      if (err) {
+        console.error("Error al actualizar el estado de la solicitud:", err);
+        res.status(500).send("Error del servidor");
+      } else {
+        res.sendStatus(200);
       }
     });
   };
