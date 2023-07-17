@@ -80,3 +80,49 @@ export const crearSeccion = (req, res) => {
       }
     });
   }
+
+  export const seccionesclases = (req, res) => {
+    const centroId = req.params.centroId;
+    const carreraId = req.params.carreraId;
+  
+    const query = `
+      SELECT
+        seccion.id_seccion,
+        seccion.cupos,
+        seccion.id_clase,
+        clase.nombre AS nombre_clase,
+        seccion.num_empleado,
+        CONCAT(docente.nombres, ' ', docente.apellidos) AS nombre_empleado,
+        seccion.id_edificio,
+        edificio.nombre AS nombre_edificio,
+        seccion.id_aula,
+        aula.num_aula
+      FROM
+        seccion
+      JOIN
+        clase ON seccion.id_clase = clase.id_clase
+      JOIN
+        docente ON seccion.num_empleado = docente.num_empleado
+      JOIN
+        edificio ON seccion.id_edificio = edificio.id_edificio
+      JOIN
+        aula ON seccion.id_aula = aula.id_aula
+      JOIN
+        carrera ON clase.id_carrera = carrera.id
+      JOIN
+        centro ON carrera.centro_id = centro.id
+      WHERE
+        centro.id = ? AND carrera.id = ?
+      ORDER BY
+        num_empleado ASC, id_edificio ASC;
+    `;
+      db.query(query, [centroId, carreraId], (error, results) => {
+      if (error) {
+        console.error('Error al ejecutar la consulta:', error);
+        res.status(500).json({ error: 'Ocurrió un error al obtener las secciones.' });
+        return;
+      }
+  
+      res.json(results);
+    });
+  };
