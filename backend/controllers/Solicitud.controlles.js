@@ -78,3 +78,22 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
       }
     });
   };
+  export const obtenerSolicitudEs = (req, res) => {
+    const { num_cuenta } = req.query;;
+    const values = [num_cuenta,];
+    const query = `
+    SELECT *
+    FROM solicitud
+    WHERE num_cuenta = ? 
+  `;
+  
+    db.query(query,values, (error, results) => {
+      if (error) {
+        console.error('Error al obtener las solicitudes del coordinador:', error);
+        res.status(500).json({ error: 'Error al obtener las solicitudes del coordinador' });
+      } else {
+        res.status(200).json(results);
+        console.log('Solicitudes obtenidas:', results);
+      }
+    });
+  };
