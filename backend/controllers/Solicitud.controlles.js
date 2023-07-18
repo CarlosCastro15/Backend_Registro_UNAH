@@ -43,24 +43,34 @@ export const crearSolicitud = (req, res) => {
   });
 };
 export const obtenerSolicitudesPorCoordinador = (req, res) => {
-    const { num_empleado } = req.query;;
-    const values = [num_empleado,];
-    const query = `
-    SELECT *
-    FROM solicitud
-    WHERE num_empleado = ? AND estado = 'pendiente'
+  const { num_empleado } = req.query;
+  const values = [num_empleado];
+  const query = `
+    SELECT
+      solicitud.*,
+      COALESCE(carrera.nombre, ' ') AS nombre_carrera,
+      COALESCE(centro.nombre, ' ') AS nombre_centro
+    FROM
+      solicitud
+    LEFT JOIN
+      carrera ON solicitud.id_carrera = carrera.id
+    LEFT JOIN
+      centro ON solicitud.id_centro = centro.id
+    WHERE
+      solicitud.num_empleado = ? AND solicitud.estado = 'pendiente'
   `;
-  
-    db.query(query,values, (error, results) => {
-      if (error) {
-        console.error('Error al obtener las solicitudes del coordinador:', error);
-        res.status(500).json({ error: 'Error al obtener las solicitudes del coordinador' });
-      } else {
-        res.status(200).json(results);
-        console.log('Solicitudes obtenidas:', results);
-      }
-    });
-  };
+
+  db.query(query, values, (error, results) => {
+    if (error) {
+      console.error('Error al obtener las solicitudes del coordinador:', error);
+      res.status(500).json({ error: 'Error al obtener las solicitudes del coordinador' });
+    } else {
+      res.status(200).json(results);
+      console.log('Solicitudes obtenidas:', results);
+    }
+  });
+};
+
   
   export const obtenerSolicitudEs = (req, res) => {
     const { num_cuenta } = req.query;;
