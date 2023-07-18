@@ -30,3 +30,36 @@ import { db } from '../db.js'
       }
     });
   };
+
+
+  //------------
+  //ENDPOINT: para crear un proceso de subir notas
+  export const ingresarProcesoSubidaNotas = (req, res) => {
+    const {anio,periodo,fechainicioI,fechainicioII} = req.body;
+  
+    // Consulta SQL para insertar los datos en la tabla "proceso"
+    const sql = `INSERT INTO proceso_subir_notas (anio,periodo,fechainicioI,fechainicioII) VALUES (?, ?, ?, ?)`;
+  
+    // Ejecutar la consulta SQL con los datos proporcionados
+    db.query(sql, [anio,periodo,fechainicioI,fechainicioII], (error, results) => {
+      if (error) {
+        console.error('Error al ingresar los datos:', error);
+        res.status(500).json({ error: 'Error al ingresar los datos' });
+      } else {
+        res.json({ message: 'Datos ingresados correctamente' });
+      }
+    });
+  }
+
+//------------
+//ENDPOINT para traer los procesos de subir nota
+  export const getProcesosSubirNotas = (req, res) => {
+    db.query('SELECT * FROM proceso_subir_notas', (error, results) => {
+      if (error) {
+        console.error('Error al ejecutar la consulta:', error);
+        res.status(500).json({ error: 'Error al ejecutar la consulta' });
+      } else {
+        res.json(results);
+      }
+    });
+  };
