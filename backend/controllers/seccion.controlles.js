@@ -82,10 +82,13 @@ export const crearSeccion = (req, res) => {
   }
 
   export const seccionesclases = (req, res) => {
-    const centroId = req.params.centroId;
+    // Obtener los parámetros de la URL
     const carreraId = req.params.carreraId;
+    const centroId = req.params.centroId;
+    const periodoId = req.params.periodoId;
   
-    const query = `
+    // Consulta SQL con parámetros
+    const sql = `
       SELECT
         seccion.id_seccion,
         seccion.cupos,
@@ -111,18 +114,23 @@ export const crearSeccion = (req, res) => {
         carrera ON clase.id_carrera = carrera.id
       JOIN
         centro ON carrera.centro_id = centro.id
+      JOIN
+        periodo ON seccion.id_periodo = periodo.id_periodo
       WHERE
-        centro.id = ? AND carrera.id = ?
+        docente.carrera_id = ? AND
+        docente.centro_id = ? AND
+        periodo.id_periodo = ?
       ORDER BY
-        num_empleado ASC, id_edificio ASC;
+        seccion.num_empleado ASC,
+        seccion.id_edificio ASC;
     `;
-      db.query(query, [centroId, carreraId], (error, results) => {
-      if (error) {
-        console.error('Error al ejecutar la consulta:', error);
-        res.status(500).json({ error: 'Ocurrió un error al obtener las secciones.' });
-        return;
-      }
   
-      res.json(results);
+    // Ejecutar la consulta SQL con parámetros
+    db.query(sql, [carreraId, centroId, periodoId], (err, result) => {
+      if (err) {
+        throw err;
+      }
+      // Enviar el resultado de la consulta como respuesta
+      res.json(result);
     });
   };
