@@ -233,3 +233,38 @@ export const centroById = (req, res) => {
     }
   });
 }
+
+export const getDocenteByCorreo = (req, res) => {
+  const correo = req.params.correo;
+
+  const sql = `SELECT
+  d.num_empleado,
+  d.nombres,
+  d.apellidos,
+  d.identidad,
+  d.correo,
+  c.nombre AS nombre_centro,
+  carr.nombre AS carrera,
+  d.cargo
+FROM
+  docente d
+  JOIN centro c ON d.centro_id = c.id
+  JOIN carrera carr ON d.carrera_id = carr.id
+WHERE
+  d.correo = '${correo}'`;
+
+  db.query(sql, [correo], (err, results) => {
+    if (err) {
+      console.error('Error al obtener el docente: ' + err);
+      res.status(500).json({ error: 'Error al obtener el docente' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Docente no encontrado' });
+      return;
+    }
+    const docente = results;
+    res.json(docente);
+  });
+}

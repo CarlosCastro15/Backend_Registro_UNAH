@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {carrerasCentro,docenteCarreraCentro,actualizarCargoDocente,envioCorreoDocente,restaContraDocente,docenteCarreraCentroById, getDocenteById,clasesDocente,docentecarreranombre, centroById} from '../controllers/docente.controlles.js'
+import {carrerasCentro,docenteCarreraCentro,actualizarCargoDocente,envioCorreoDocente,restaContraDocente,docenteCarreraCentroById, getDocenteById,clasesDocente,docentecarreranombre, centroById, getDocenteByCorreo} from '../controllers/docente.controlles.js'
 
 const router = Router()
 
@@ -29,6 +29,8 @@ router.get('/clasesdocentes/:num_empleado', clasesDocente)
 
 //docente por medio de carrera  //DAVID
 router.get('/docentecarreranombre/:nombre/:centro', docentecarreranombre)
+
+router.get('/docenteCorreo/:correo', getDocenteByCorreo)
 
 
 export default router 

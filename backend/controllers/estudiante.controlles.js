@@ -173,7 +173,7 @@ export const envioCorreoEstudiante = (req, res) => {
   export const clasesAlumno = (req, res) => {
     const IdClase = req.params.id_clase;
     
-    const sql = `SELECT e.nota, e.num_cuenta, e.primer_nombre, e.primer_apellido
+    const sql = `SELECT e.nota, e.num_cuenta, e.primer_nombre, e.primer_apellido, e.correo_institucional
                 FROM estudiante e
                 JOIN matricula m ON e.num_cuenta = m.num_cuenta
                 JOIN seccion s ON m.id_seccion = s.id_seccion
@@ -192,17 +192,19 @@ export const envioCorreoEstudiante = (req, res) => {
   //editar nota del estudiante 
   
   export const notaEstudiante = (req, res) => {
-    const numCuenta = req.params.num_cuenta;
+    const idClase = req.params.id_clase;
+    const idEstudiante = req.params.id_estudiante;
     const nuevaNota = req.body.nota;
   
-    const sql = 'UPDATE estudiante SET nota = ? WHERE num_cuenta = ?';
-    
-    db.query(sql, [nuevaNota, numCuenta], (error, results) => {
-      if (error) {
-        console.error('Error al actualizar la descripción:', error);
-        res.status(500).send('Error al actualizar la descripción del estudiante');
-      } else {
-        res.send('Nota del estudiante actualizada correctamente');
+    const sql = `UPDATE clase_pasada SET nota = ? WHERE id_clase = ? AND id_estudiante = ?`;
+  
+    db.query(sql, [nuevaNota, idClase, idEstudiante], (err, result) => {
+      if (err) {
+        console.error('Error al actualizar la nota: ', err);
+        res.status(500).send('Error interno del servidor');
+        return;
       }
+  
+      res.status(200).send('Nota actualizada exitosamente');
     });
-  }
+  };
