@@ -20,9 +20,7 @@ router.post('/estudiantesDescri/descripcion/:num_cuenta', actualizarEstuDescri)
 //listar los alumnos segun el id de la clase Roberto
 router.get('/claseAlumno/:id_clase', clasesAlumno)
 
-//editar nota del estudiante segun num_cuenta Roberto
-router.post('/notaEstudiante/nota/:num_cuenta', notaEstudiante)
-
-
+//editar nota del estudiante segun num_cuenta en la tabla clases_pasadas Roberto
+router.put('/clase-pasada-nota/:id_clase/:id_estudiante', notaEstudiante)
 
 export default router 

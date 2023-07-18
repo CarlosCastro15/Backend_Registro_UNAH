@@ -10,6 +10,8 @@ import claseRoutes from './routes/clase.routes.js'
 import edificioRoutes from './routes/edificio.routes.js'
 import seccionRoutes from './routes/seccion.routes.js'
 import solicitudRoutes from './routes/Solicitude.router.js'
+import procesoRoutes from './routes/procesos.routes.js'
+import procesoSubirNotas from './routes/proceso_subir_notas.routes.js'
 import path  from 'path'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
@@ -32,6 +34,8 @@ app.use(claseRoutes)
 app.use(edificioRoutes)
 app.use(seccionRoutes)
 app.use(solicitudRoutes)
+app.use(procesoRoutes)
+app.use(procesoSubirNotas)
 app.use(express.static(path.join(__dirname, 'uploads')));
 app.use(express.static(path.join(__dirname, 'uploadss')))
 
