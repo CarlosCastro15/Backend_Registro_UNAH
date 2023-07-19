@@ -169,25 +169,21 @@ export const envioCorreoEstudiante = (req, res) => {
   }
 
 
-  //listar los alumnos segun el id de la clase
+  //listar los alumnos segun el id de la clase //acordate
   export const clasesAlumno = (req, res) => {
-    const IdClase = req.params.id_clase;
-    
-    const sql = `SELECT e.nota, e.num_cuenta, e.primer_nombre, e.primer_apellido, e.correo_institucional
-                FROM estudiante e
-                JOIN matricula m ON e.num_cuenta = m.num_cuenta
-                JOIN seccion s ON m.id_seccion = s.id_seccion
-                WHERE s.id_clase = ? `;
+    const id_clase = req.params.id_clase;
   
-    // Ejecutar la consulta con los parámetros proporcionados
-    db.query(sql, [IdClase], (err, results) => {
-      if (err) {
-        console.error('Error al ejecutar la consulta: ', err);
-        res.status(500).json({ error: 'Error interno del servidor' });
-      }
+    const query = `
+      SELECT cp.nota, e.num_cuenta, e.primer_nombre, e.primer_apellido, e.correo_institucional
+      FROM clase_pasada cp
+      JOIN estudiante e ON cp.id_estudiante = e.num_cuenta
+      WHERE cp.id_clase = ?`;
+  
+      db.query(query, [id_clase], (err, results) => {
+      if (err) throw err;
       res.json(results);
     });
-  }
+  };
 
   //editar nota del estudiante 
   
