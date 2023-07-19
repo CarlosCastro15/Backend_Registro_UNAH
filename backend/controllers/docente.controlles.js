@@ -128,7 +128,7 @@ export const restaContraDocente = (req, res) => {
 export const getDocenteById = (req, res) => {
   const id = req.params.id;
 
-  const sql = `SELECT docente.num_empleado, docente.nombres, docente.apellidos, docente.correo, docente.identidad, docente.cargo, carrera.nombre AS carrera, docente.centro_id FROM docente
+  const sql = `SELECT docente.num_empleado, docente.nombres, docente.apellidos, docente.correo, docente.identidad, docente.cargo, carrera.nombre AS carrera,docente.carrera_id, docente.centro_id FROM docente
   JOIN carrera ON docente.carrera_id = carrera.id
   WHERE docente.num_empleado = ${id}`;
 
