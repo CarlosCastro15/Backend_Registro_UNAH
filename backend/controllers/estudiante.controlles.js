@@ -424,7 +424,7 @@ export const eliminarClase = (req, res) => {
 
   const deleteQuery = 'DELETE FROM matricula WHERE num_cuenta = ? AND id_seccion = ?';
 
-  connection.query(deleteQuery, [num_cuenta, id_seccion], (err, result) => {
+  db.query(deleteQuery, [num_cuenta, id_seccion], (err, result) => {
     if (err) {
       console.error('Error al ejecutar el DELETE:', err);
       res.status(500).json({ error: 'Error al eliminar el item de la tabla' });
