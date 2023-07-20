@@ -223,7 +223,7 @@ export const centroById = (req, res) => {
     FROM docente d
     JOIN centro c ON d.centro_id = c.id
     WHERE d.num_empleado = '${centro}'`;
-
+    
   db.query(query, (err, rows) => {
     if (err) {
       console.error('Error al ejecutar la consulta: ', err);
@@ -246,7 +246,7 @@ export const getDocenteByCorreo = (req, res) => {
   c.nombre AS nombre_centro,
   carr.nombre AS carrera,
   d.cargo
-FROM
+  FROM
   docente d
   JOIN centro c ON d.centro_id = c.id
   JOIN carrera carr ON d.carrera_id = carr.id
