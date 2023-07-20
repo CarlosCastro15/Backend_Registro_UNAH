@@ -10,4 +10,5 @@ router.get('/clasescarrera/:nombre', clasesCarrera)
 router.get('/clasesnopasadas/:num_cuenta',clasesNoPasadas)
 
 
+
 export default router 
