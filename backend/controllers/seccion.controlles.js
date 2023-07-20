@@ -82,55 +82,43 @@ export const crearSeccion = (req, res) => {
   }
 
   export const seccionesclases = (req, res) => {
-    // Obtener los parámetros de la URL
-    const carreraId = req.params.carreraId;
-    const centroId = req.params.centroId;
-    const periodoId = req.params.periodoId;
+    const { carreraId, centroId, anio, periodo } = req.params;
   
-    // Consulta SQL con parámetros
-    const sql = `
-      SELECT
-        seccion.id_seccion,
-        seccion.cupos,
-        seccion.id_clase,
-        clase.nombre AS nombre_clase,
-        seccion.num_empleado,
-        CONCAT(docente.nombres, ' ', docente.apellidos) AS nombre_empleado,
-        seccion.id_edificio,
-        edificio.nombre AS nombre_edificio,
-        seccion.id_aula,
-        aula.num_aula
+    const query = `
+      SELECT 
+        s.id_seccion,
+        s.cupos,
+        s.id_clase,
+        c.nombre AS nombre_clase,
+        s.num_empleado,
+        CONCAT(d.nombres, ' ', d.apellidos) AS nombre_empleado,
+        s.id_edificio,
+        e.nombre AS nombre_edificio,
+        s.id_aula,
+        a.num_aula 
       FROM
-        seccion
-      JOIN
-        clase ON seccion.id_clase = clase.id_clase
-      JOIN
-        docente ON seccion.num_empleado = docente.num_empleado
-      JOIN
-        edificio ON seccion.id_edificio = edificio.id_edificio
-      JOIN
-        aula ON seccion.id_aula = aula.id_aula
-      JOIN
-        carrera ON clase.id_carrera = carrera.id
-      JOIN
-        centro ON carrera.centro_id = centro.id
-      JOIN
-        periodo ON seccion.id_periodo = periodo.id_periodo
+        seccion AS s
+      INNER JOIN clase AS c ON s.id_clase = c.id_clase
+      INNER JOIN docente AS d ON s.num_empleado = d.num_empleado
+      INNER JOIN edificio AS e ON s.id_edificio = e.id_edificio
+      INNER JOIN aula AS a ON s.id_aula = a.id_aula
+      INNER JOIN proceso AS p ON s.anio = p.anio AND s.periodo = p.periodo
+      INNER JOIN carrera AS carr ON c.id_carrera = carr.id
+      INNER JOIN centro AS centro ON carr.centro_id = centro.id
       WHERE
-        docente.carrera_id = ? AND
-        docente.centro_id = ? AND
-        periodo.id_periodo = ?
-      ORDER BY
-        seccion.num_empleado ASC,
-        seccion.id_edificio ASC;
+        carr.id = ?
+        AND centro.id = ?
+        AND p.anio = ?
+        AND p.periodo = ?;
     `;
   
-    // Ejecutar la consulta SQL con parámetros
-    db.query(sql, [carreraId, centroId, periodoId], (err, result) => {
+    db.query(query, [carreraId, centroId, anio, periodo], (err, results) => {
       if (err) {
-        throw err;
+        console.error('Error al ejecutar la consulta:', err);
+        res.status(500).json({ error: 'Error al obtener las secciones' });
+        return;
       }
-      // Enviar el resultado de la consulta como respuesta
-      res.json(result);
+  
+      res.json(results);
     });
   };
