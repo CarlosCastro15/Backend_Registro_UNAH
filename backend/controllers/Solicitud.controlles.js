@@ -1,9 +1,8 @@
 import { db } from '../db.js';
 
 export const crearSolicitud = (req, res) => {
-  const { tipo_solicitud, num_cuenta, justificacion ,id_carrera,id_centro,id_clase} = req.body;
+  const { tipo_solicitud, num_cuenta, justificacion, id_carrera, id_centro, id_clase } = req.body;
   const estado = "pendiente";
-
   const consultaDocente = `
     SELECT d.num_empleado
     FROM docente d
@@ -13,23 +12,19 @@ export const crearSolicitud = (req, res) => {
       AND d.cargo = 'Coordinador'
       AND d.centro_id = e.centro_id
       AND d.carrera_id = e.carrera_id
-  
   `;
-
   const query = `INSERT INTO solicitud (tipo_solicitud, num_cuenta, num_empleado, justificacion,
-     estado,id_carrera,id_centro,id_clase 
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?`;
-  
- 
+     estado, id_carrera, id_centro, id_clase)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
   db.query(consultaDocente, [num_cuenta], (error, results) => {
     if (error) {
       console.error('Error al obtener el num_empleado del Coordinador:', error);
       res.status(500).json({ error: 'Error al guardar la solicitud' });
     } else {
       const num_empleado = results[0]?.num_empleado;
-      
-    
-      const values = [tipo_solicitud, num_cuenta, num_empleado, justificacion, estado ,id_carrera,id_centro,id_clase,Pago_repo];
+
+      const values = [tipo_solicitud, num_cuenta, num_empleado, justificacion, estado, id_carrera, id_centro, id_clase];
       db.query(query, values, (error, results) => {
         if (error) {
           console.error('Error al guardar la solicitud:', error);
@@ -42,6 +37,10 @@ export const crearSolicitud = (req, res) => {
     }
   });
 };
+
+
+
+
 export const obtenerSolicitudesPorCoordinador = (req, res) => {
   const { num_empleado } = req.query;
   const values = [num_empleado];
@@ -73,7 +72,7 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
 
   
   export const obtenerSolicitudEs = (req, res) => {
-    const { num_cuenta } = req.query;;
+    const { num_cuenta } = req.query;
     const values = [num_cuenta,];
     const query = `
     SELECT *
@@ -165,7 +164,7 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
 
   // Consultar la solicitud para obtener los datos necesarios
   const selectQuery = `
-    SELECT tipo_solicitud, num_cuenta, id_carrera, id_centro, id_clase, Pago_repo
+    SELECT tipo_solicitud, num_cuenta, id_carrera, id_centro, id_clase
     FROM solicitud
     WHERE id = ?
   `;
@@ -179,7 +178,7 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
       if (result.length === 0) {
         res.status(404).send("Solicitud no encontrada");
       } else {
-        const { tipo_solicitud, num_cuenta, id_carrera, id_centro, id_clase, Pago_repo } = result[0];
+        const { tipo_solicitud, num_cuenta, id_carrera, id_centro, id_clase} = result[0];
 
         // Actualizar el estado en la tabla de solicitud
         const updateEstadoQuery = `
@@ -212,6 +211,28 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
             res.sendStatus(200);
           }
         });
+      }
+    }
+  });
+};
+
+export const PagoReposicionEstudiante = (req, res) => {
+  const num_cuenta = req.params.num_cuenta; 
+  const query = `
+    SELECT Pago_reposolicitud FROM estudiante WHERE num_cuenta = ?
+  `;
+  const values = [parseInt(num_cuenta, 10)]; 
+
+  db.query(query, values, (error, result) => {
+    if (error) {
+      console.error('Error al obtener el pago de reposición:', error);
+      res.status(500).json({ error: 'Error al obtener el pago de reposición' });
+    } else {
+      if (result.length > 0) {
+        const pagoReposicion = result[0].Pago_reposolicitud;
+        res.status(200).json({ Pago_reposolicitud: pagoReposicion });
+      } else {
+        res.status(404).json({ error: 'No se encontró el estudiante con el número de cuenta proporcionado' });
       }
     }
   });
