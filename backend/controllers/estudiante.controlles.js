@@ -417,3 +417,53 @@ export const matriculaSeccion = (req, res) => {
     }
   });
 }
+
+export const eliminarClase = (req, res) => {
+  const num_cuenta = req.params.num_cuenta;
+  const id_seccion = req.params.id_seccion;
+
+  const deleteQuery = 'DELETE FROM matricula WHERE num_cuenta = ? AND id_seccion = ?';
+
+  db.query(deleteQuery, [num_cuenta, id_seccion], (err, result) => {
+    if (err) {
+      console.error('Error al ejecutar el DELETE:', err);
+      res.status(500).json({ error: 'Error al eliminar el item de la tabla' });
+      return;
+    }
+
+    res.json({ message: 'Item eliminado correctamente de la tabla matricula' });
+  });
+};
+
+export const clases_matriculadas = (req, res) => {
+  const numCuenta = req.params.num_cuenta;
+  const anio = req.params.anio;
+  const periodo = req.params.periodo;
+
+  const sqlQuery = `
+    SELECT *
+    FROM seccion s
+    INNER JOIN clase c ON s.id_clase = c.id_clase
+    INNER JOIN aula a ON s.id_aula = a.id_aula
+    WHERE s.id_seccion IN (
+      SELECT id_seccion
+      FROM matricula m
+      WHERE m.num_cuenta = ?
+    )
+    AND EXISTS (
+      SELECT 1
+      FROM proceso p
+      WHERE p.anio = ?
+      AND p.periodo = ?
+    )
+  `;
+
+  db.query(sqlQuery, [numCuenta, anio, periodo], (err, results) => {
+    if (err) {
+      console.error('Error en la consulta:', err);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+    } else {
+      res.json(results);
+    }
+  });
+};

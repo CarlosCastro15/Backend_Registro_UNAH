@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {getEstudiante,getEstudianteId,deleteEstudiante,updateEstudiante,envioCorreoEstudiante,restaContraEstudiante,actualizarEstuDescri,clasesAlumno,notaEstudiante,clasesByIdEstudiante,verificarRequisito,verificarHorario,matriculaSeccion} from '../controllers/estudiante.controlles.js'
+import {getEstudiante,getEstudianteId,deleteEstudiante,updateEstudiante,envioCorreoEstudiante,restaContraEstudiante,actualizarEstuDescri,clasesAlumno,notaEstudiante,clasesByIdEstudiante,verificarRequisito,verificarHorario,matriculaSeccion,eliminarClase, clases_matriculadas} from '../controllers/estudiante.controlles.js'
 
 const router = Router()
 
@@ -35,5 +35,10 @@ router.get('/verificar-horario/:idSeccion/:num_cuenta/:anio/:periodo', verificar
 
 
 router.post('/insertMatricula', matriculaSeccion);
+
+router.delete('/eliminar-clase/:num_cuenta/:id_seccion', eliminarClase )
+
+router.get('/clases-matriculadas/:num_cuenta/:anio/:periodo',clases_matriculadas)
+
 
 export default router 
