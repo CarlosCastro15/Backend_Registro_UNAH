@@ -84,41 +84,43 @@ export const crearSeccion = (req, res) => {
   export const seccionesclases = (req, res) => {
     const { carreraId, centroId, anio, periodo } = req.params;
   
-    const query = `
-      SELECT 
-        s.id_seccion,
-        s.cupos,
-        s.id_clase,
-        c.nombre AS nombre_clase,
-        s.num_empleado,
-        CONCAT(d.nombres, ' ', d.apellidos) AS nombre_empleado,
-        s.id_edificio,
-        e.nombre AS nombre_edificio,
-        s.id_aula,
-        a.num_aula 
-      FROM
-        seccion AS s
-      INNER JOIN clase AS c ON s.id_clase = c.id_clase
-      INNER JOIN docente AS d ON s.num_empleado = d.num_empleado
-      INNER JOIN edificio AS e ON s.id_edificio = e.id_edificio
-      INNER JOIN aula AS a ON s.id_aula = a.id_aula
-      INNER JOIN proceso AS p ON s.anio = p.anio AND s.periodo = p.periodo
-      INNER JOIN carrera AS carr ON c.id_carrera = carr.id
-      INNER JOIN centro AS centro ON carr.centro_id = centro.id
-      WHERE
+
+  const query = `
+          SELECT
+          s.id_seccion,
+          s.cupos,
+          s.id_clase,
+          c.codigo AS codigo_clase, -- Nueva columna para el código de la clase
+          c.nombre AS nombre_clase,
+          s.num_empleado,
+          CONCAT(d.nombres, ' ', d.apellidos) AS nombre_empleado,
+          s.id_edificio,
+          e.nombre AS nombre_edificio,
+          s.id_aula,
+          a.num_aula
+        FROM
+          seccion AS s
+          INNER JOIN clase AS c ON s.id_clase = c.id_clase
+          INNER JOIN docente AS d ON s.num_empleado = d.num_empleado
+          INNER JOIN edificio AS e ON s.id_edificio = e.id_edificio
+          INNER JOIN aula AS a ON s.id_aula = a.id_aula
+          INNER JOIN proceso AS p ON s.anio = p.anio AND s.periodo = p.periodo
+          INNER JOIN carrera AS carr ON c.id_carrera = carr.id
+          INNER JOIN centro AS centro ON carr.centro_id = centro.id
+        WHERE
         carr.id = ?
         AND centro.id = ?
-        AND p.anio = ?
+        AND YEAR(p.anio)= ?
         AND p.periodo = ?;
-    `;
-  
-    db.query(query, [carreraId, centroId, anio, periodo], (err, results) => {
-      if (err) {
-        console.error('Error al ejecutar la consulta:', err);
-        res.status(500).json({ error: 'Error al obtener las secciones' });
-        return;
-      }
-  
-      res.json(results);
-    });
+  `;
+
+  db.query(query, [carreraId, centroId, anio, periodo], (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta:', err);
+      res.status(500).json({ error: 'Error al obtener las secciones' });
+      return;
+    }
+
+    res.json(results);
+  });
   };
