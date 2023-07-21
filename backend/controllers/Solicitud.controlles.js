@@ -13,12 +13,12 @@ export const crearSolicitud = (req, res) => {
       AND d.cargo = 'Coordinador'
       AND d.centro_id = e.centro_id
       AND d.carrera_id = e.carrera_id
-    LIMIT 1
+  
   `;
 
   const query = `INSERT INTO solicitud (tipo_solicitud, num_cuenta, num_empleado, justificacion,
-     estado,id_carrera,id_centro,id_clase) 
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+     estado,id_carrera,id_centro,id_clase 
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?`;
   
  
   db.query(consultaDocente, [num_cuenta], (error, results) => {
@@ -29,7 +29,7 @@ export const crearSolicitud = (req, res) => {
       const num_empleado = results[0]?.num_empleado;
       
     
-      const values = [tipo_solicitud, num_cuenta, num_empleado, justificacion, estado ,id_carrera,id_centro,id_clase];
+      const values = [tipo_solicitud, num_cuenta, num_empleado, justificacion, estado ,id_carrera,id_centro,id_clase,Pago_repo];
       db.query(query, values, (error, results) => {
         if (error) {
           console.error('Error al guardar la solicitud:', error);
@@ -106,22 +106,115 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
       }
     });
   }
-  export const ActualizarEstado = (req, res) => {
-    const { id } = req.params;
-    const { estado } = req.body;
+  const actualizarCarreraEstudiante = (num_cuenta, id_carrera) => {
     const query = `
-      UPDATE solicitud
-      SET estado = ?
-      WHERE id = ?
+      UPDATE estudiante
+      SET carrera_id = ?
+      WHERE num_cuenta = ?
     `;
-    const values = [estado, id];
+    const values = [id_carrera, num_cuenta];
   
-    db.query(query, values, (err, result) => {
-      if (err) {
-        console.error("Error al actualizar el estado de la solicitud:", err);
-        res.status(500).send("Error del servidor");
+    db.query(query, values, (error, result) => {
+      if (error) {
+        console.error('Error al actualizar la carrera del estudiante:', error);
       } else {
-        res.sendStatus(200);
+        console.log('Carrera del estudiante actualizada:', result);
       }
     });
   };
+  
+  // Función para actualizar el centro del estudiante en la tabla estudiante
+  const actualizarCentroEstudiante = (num_cuenta, id_centro) => {
+    const query = `
+      UPDATE estudiante
+      SET centro_id = ?
+      WHERE num_cuenta = ?
+    `;
+    const values = [id_centro, num_cuenta];
+  
+    db.query(query, values, (error, result) => {
+      if (error) {
+        console.error('Error al actualizar el centro del estudiante:', error);
+      } else {
+        console.log('Centro del estudiante actualizado:', result);
+      }
+    });
+  };
+  
+  // Función para actualizar el campo "Pago_repo" del estudiante en la tabla estudiante
+  const actualizarPagoReposicionEstudiante = (num_cuenta) => {
+    const query = `
+      UPDATE estudiante
+      SET Pago_reposolicitud = 1
+      WHERE num_cuenta = ?
+    `;
+    const values = [num_cuenta];
+  
+    db.query(query, values, (error, result) => {
+      if (error) {
+        console.error('Error al actualizar el pago de reposición del estudiante:', error);
+      } else {
+        console.log('Pago de reposición del estudiante actualizado:', result);
+      }
+    });
+  };
+  
+  export const ActualizarEstado = (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body;
+
+  // Consultar la solicitud para obtener los datos necesarios
+  const selectQuery = `
+    SELECT tipo_solicitud, num_cuenta, id_carrera, id_centro, id_clase, Pago_repo
+    FROM solicitud
+    WHERE id = ?
+  `;
+  const selectValues = [id];
+
+  db.query(selectQuery, selectValues, (err, result) => {
+    if (err) {
+      console.error("Error al obtener los datos de la solicitud:", err);
+      res.status(500).send("Error del servidor");
+    } else {
+      if (result.length === 0) {
+        res.status(404).send("Solicitud no encontrada");
+      } else {
+        const { tipo_solicitud, num_cuenta, id_carrera, id_centro, id_clase, Pago_repo } = result[0];
+
+        // Actualizar el estado en la tabla de solicitud
+        const updateEstadoQuery = `
+          UPDATE solicitud
+          SET estado = ?
+          WHERE id = ?
+        `;
+        const updateEstadoValues = [estado, id];
+
+        db.query(updateEstadoQuery, updateEstadoValues, (err, result) => {
+          if (err) {
+            console.error("Error al actualizar el estado de la solicitud:", err);
+            res.status(500).send("Error del servidor");
+          } else {
+            if (estado === "Aprobada") {
+              switch (tipo_solicitud) {
+                case "Cambio de Carrera":                  
+                  actualizarCarreraEstudiante(num_cuenta, id_carrera);
+                  break;
+                case "Cambio de Centro":                 
+                  actualizarCentroEstudiante(num_cuenta, id_centro);
+                  break;
+                case "Pago Reposición":                  
+                  actualizarPagoReposicionEstudiante(num_cuenta);
+                  break;              
+                default:                  
+                  break;
+              }
+            }
+            res.sendStatus(200);
+          }
+        });
+      }
+    }
+  });
+};
+
+
