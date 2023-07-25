@@ -1,5 +1,6 @@
 
 import { db } from '../db.js'
+import nodemailer from 'nodemailer'
 
 
 export const crearSeccion = (req, res) => {
@@ -124,3 +125,74 @@ export const crearSeccion = (req, res) => {
     res.json(results);
   });
   };
+
+  //ENVIAR CORREOS ELECTRONICOS A LOS ALUMNOS PARA AVISAR QUE YA SE SUBIO SU NOTA ESTO DEACUERDO AL id_seccion
+  export const enviarcorreosnotificacion = (req, res) => {
+    const id_seccion = req.params.id_seccion;
+  
+    // Función para obtener los correos electrónicos de los estudiantes según id_seccion
+    function obtenerCorreosEstudiantesPorSeccion(id_seccion, callback) {
+      const query = `
+        SELECT correo_institucional FROM estudiante
+        JOIN matricula ON estudiante.num_cuenta = matricula.num_cuenta
+        WHERE matricula.id_seccion = ?;
+      `;
+  
+      db.query(query, [id_seccion], (error, results) => {
+        if (error) {
+          console.error('Error al obtener los correos electrónicos de los estudiantes:', error);
+          callback(error, null);
+        } else {
+          const correos = results.map((result) => result.correo_institucional);
+          callback(null, correos);
+        }
+      });
+    }
+  
+    function enviarCorreosEstudiantes(id_seccion, correos) {
+      // Crear un transporter de Nodemailer
+      const transporter = nodemailer.createTransport({
+        // Reemplaza con la configuración de tu proveedor de servicios de correo electrónico
+        service: 'gmail',
+        auth: {
+          user: '07castro.carlos@gmail.com',
+          pass: 'falwoicxephoscez',
+        },
+      });
+    
+      // Opciones del correo electrónico
+      const opcionesCorreo = {
+        from: '07castro.carlos@gmail.com',
+        to: correos.join(','),
+        subject: 'Subida de Notas',
+        html: `<html><head><meta charset="UTF-8"><title>Mensaje de correo electrónico</title></head><body><div style="max-width: 600px; margin: 0 auto;"><h1>UNIVERSIDAD NACIONAL AUTONOMA DE HONDURAS</h1><p>Este correo es para informarle que ya se le ha registrado su nota de la clase en la sección ${id_seccion}</p><p>Saludos,</p><p>Registro UNAH</p></div></body></html>`,
+      };
+    
+      // Enviar el correo electrónico
+      transporter.sendMail(opcionesCorreo, (error, info) => {
+        if (error) {
+          console.error('Error al enviar los correos electrónicos:', error);
+          res.status(500).json({ error: 'Error al enviar los correos electrónicos' });
+        } else {
+          console.log('Correos electrónicos enviados:', info.response);
+          res.status(200).json({ message: 'Correos electrónicos enviados correctamente' });
+        }
+      });
+    }
+    
+  
+    // Obtener los correos electrónicos de los estudiantes según id_seccion y enviar correos
+    obtenerCorreosEstudiantesPorSeccion(id_seccion, (err, correos) => {
+      if (err) {
+        console.error('Error al obtener los correos electrónicos de los estudiantes:', err);
+        res.status(500).json({ error: 'Error al obtener los correos electrónicos de los estudiantes' });
+        return;
+      }
+    
+      if (correos.length > 0) {
+        enviarCorreosEstudiantes(id_seccion, correos); // Pasa el id_seccion a la función
+      } else {
+        res.status(404).json({ message: 'No se encontraron estudiantes para la id_seccion especificada' });
+      }
+    });
+  }

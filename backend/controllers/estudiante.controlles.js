@@ -510,3 +510,41 @@ export const clases_matriculadas = (req, res) => {
     }
   });
 };
+
+
+export const estudianteSeccionObtener = (req, res) => {
+  const idSeccion = req.params.idSeccion;
+
+  const sqlQuery = `
+    SELECT 
+        estudiante.primer_nombre,
+        estudiante.segundo_nombre,
+        estudiante.primer_apellido,
+        estudiante.segundo_apellido,
+        estudiante.num_cuenta,
+        estudiante.correo_institucional,
+        COALESCE(clase_pasada.nota, 0) AS nota,
+        CONCAT('http://localhost:8081/', imagen.nombre_archivo) AS nombre_archivo_completo
+    FROM
+        matricula
+    INNER JOIN
+        estudiante ON matricula.num_cuenta = estudiante.num_cuenta
+    LEFT JOIN
+        seccion ON matricula.id_seccion = seccion.id_seccion
+    LEFT JOIN
+        clase_pasada ON estudiante.num_cuenta = clase_pasada.id_estudiante AND seccion.id_clase = clase_pasada.id_clase
+    LEFT JOIN
+        imagen ON estudiante.num_cuenta = imagen.id_estudiante
+    WHERE
+        seccion.id_seccion = ?;
+  `;
+
+  db.query(sqlQuery, [idSeccion], (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta:', err);
+      res.status(500).json({ error: 'Error al obtener los datos de la base de datos' });
+    } else {
+      res.json(results);
+    }
+  });
+};
