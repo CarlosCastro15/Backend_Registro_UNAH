@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {getEstudiante,getEstudianteId,deleteEstudiante,updateEstudiante,envioCorreoEstudiante,restaContraEstudiante,actualizarEstuDescri,clasesAlumno,notaEstudiante,clasesByIdEstudiante,verificarRequisito,verificarHorario,matriculaSeccion,eliminarClase, clases_matriculadas} from '../controllers/estudiante.controlles.js'
+import {getEstudiante,getEstudianteId,deleteEstudiante,updateEstudiante,envioCorreoEstudiante,restaContraEstudiante,actualizarEstuDescri,notaEstudiante,clasesByIdEstudiante,verificarRequisito,verificarHorario,matriculaSeccion,eliminarClase, clases_matriculadas,clasesAlumno,insertarclasepasada} from '../controllers/estudiante.controlles.js'
 
 const router = Router()
 
@@ -17,8 +17,11 @@ router.post('/reset-password', restaContraEstudiante)
 
 router.post('/estudiantesDescri/descripcion/:num_cuenta', actualizarEstuDescri)
 
-//listar los alumnos segun el id de la clase Roberto
+//listar los alumnos segun el id de la clase Roberto //acordate
 router.get('/claseAlumno/:id_clase', clasesAlumno)
+//router.get('/clase-Alumno/:id_seccion',  claseAlumnoidseccion)
+
+router.post('/insertar-nota-clasepasada', insertarclasepasada)
 
 //editar nota del estudiante segun num_cuenta en la tabla clases_pasadas Roberto
 router.put('/clase-pasada-nota/:id_clase/:id_estudiante', notaEstudiante)
