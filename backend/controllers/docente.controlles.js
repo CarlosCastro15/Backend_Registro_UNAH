@@ -268,3 +268,27 @@ WHERE
     res.json(docente);
   });
 }
+
+//AÑADIDO POR DAVID
+export const getHistorialByNumCuenta = (req, res) => {
+  const numCuenta = req.params.numCuenta;
+
+  const consulta = `
+    SELECT cl.codigo, cl.nombre AS nombre_clase, s.anio, s.periodo, cp.nota
+    FROM clase_pasada cp
+    INNER JOIN clase cl ON cp.id_clase = cl.id_clase
+    INNER JOIN carrera c ON cl.id_carrera = c.id
+    INNER JOIN matricula m ON cp.id_estudiante = m.num_cuenta
+    INNER JOIN seccion s ON m.id_seccion = s.id_seccion
+    WHERE cp.id_estudiante = ${numCuenta};
+  `;
+
+  db.query(consulta, (error, resultados) => {
+    if (error) {
+      res.status(500).json({ mensaje: 'Error al obtener el historial del estudiante' });
+    } else {
+      res.json(resultados);
+    }
+  });
+};
+

@@ -28,22 +28,47 @@ export const crearSeccion = (req, res) => {
   };
   
   
+  // AÑADIDOS
+  
   export const eliminarSeccion = (req, res) => {
-    const id = req.params.id_seccion;
-  
-    // Consulta SQL para eliminar la tabla "proceso" si el ID coincide
-    const sql = `DELETE FROM seccion WHERE id = ${id}`;
-  
-    // Ejecutar la consulta SQL con el ID proporcionado
-    db.query(sql, [id], (error, results) => {
-      if (error) {
-        console.error('Error al eliminar la tabla:', error);
-        res.status(500).json({ error: 'Error al eliminar la tabla' });
-      } else {
-        res.json({ message: 'Seccion eliminada correctamente' });
-      }
+    const id = req.params.id;
+
+    // Consulta SQL para eliminar los registros en la tabla "matricula" que hacen referencia a la sección que será eliminada
+    const deleteMatriculaQuery = `DELETE FROM matricula WHERE id_seccion = ${id}`;
+
+    // Consulta SQL para eliminar los registros en la tabla "evaluardocente" que hacen referencia a la sección que será eliminada
+    const deleteEvaluarDocenteQuery = `DELETE FROM evaluardocente WHERE id_seccion = ${id}`;
+
+    // Consulta SQL para eliminar la tabla "seccion" una vez que los registros relacionados en "matricula" y "evaluardocente" hayan sido eliminados
+    const deleteSeccionQuery = `DELETE FROM seccion WHERE id_seccion = ${id}`;
+
+    // Ejecutar la consulta SQL para eliminar los registros relacionados en "matricula"
+    db.query(deleteMatriculaQuery, (error, matriculaResults) => {
+        if (error) {
+            console.error('Error al eliminar registros relacionados en "matricula":', error);
+            res.status(500).json({ error: 'Error al eliminar registros relacionados en "matricula"' });
+        } else {
+            // Ahora que los registros en "matricula" han sido eliminados, procedemos a eliminar los registros en "evaluardocente"
+            db.query(deleteEvaluarDocenteQuery, (error, evaluarDocenteResults) => {
+                if (error) {
+                    console.error('Error al eliminar registros relacionados en "evaluardocente":', error);
+                    res.status(500).json({ error: 'Error al eliminar registros relacionados en "evaluardocente"' });
+                } else {
+                    // Ahora que los registros en "evaluardocente" han sido eliminados, procedemos a eliminar la sección
+                    db.query(deleteSeccionQuery, (error, seccionResults) => {
+                        if (error) {
+                            console.error('Error al eliminar la tabla "seccion":', error);
+                            res.status(500).json({ error: 'Error al eliminar la tabla "seccion"' });
+                        } else {
+                            res.json({ message: 'Seccion eliminada correctamente' });
+                        }
+                    });
+                }
+            });
+        }
     });
-  }
+};
+
   
   export const seccionporId = (req, res) => {
     const idClase = req.params.id_clase;
@@ -196,3 +221,50 @@ export const crearSeccion = (req, res) => {
       }
     });
   }
+
+    //AÑADIDO
+    export const clasesByIdCarrera = (req, res) => {
+      const id_carrera = req.params.id_carrera;
+    
+      // Consulta SQL para obtener todas las clases de la carrera específica
+      const sqlQuery = `SELECT * FROM clase WHERE id_carrera = ?`;
+    
+      db.query(sqlQuery, [id_carrera], (err, results) => {
+        if (err) {
+          console.error('Error al obtener las clases:', err);
+          res.status(500).json({ error: 'Error al obtener las clases' });
+        } else {
+          res.json(results);
+        }
+      });
+    };
+  
+    export const seccionesByIdClase = (req, res) => {
+      const id_clase = req.params.id_clase;
+    
+      // Consulta SQL para obtener todas las secciones de la clase específica
+      const sqlQuery = `SELECT 
+      s.id_seccion,
+      d.nombres,
+      d.apellidos,
+      e.nombre AS nombre_edificio,
+      a.*
+  FROM 
+      seccion s
+  INNER JOIN 
+      docente d ON s.num_empleado = d.num_empleado
+  INNER JOIN 
+      edificio e ON s.id_edificio = e.id_edificio
+  INNER JOIN 
+      aula a ON s.id_aula = a.id_aula
+  WHERE id_clase = ?`;
+    
+      db.query(sqlQuery, [id_clase], (err, results) => {
+        if (err) {
+          console.error('Error al obtener las secciones:', err);
+          res.status(500).json({ error: 'Error al obtener las secciones' });
+        } else {
+          res.json(results);
+        }
+      });
+    };

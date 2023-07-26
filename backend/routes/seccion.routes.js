@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {crearSeccion,eliminarSeccion,seccionporId,actualizarCuposSeccion,seccionesclases,enviarcorreosnotificacion} from '../controllers/seccion.controlles.js'
+import {crearSeccion,eliminarSeccion,seccionporId,actualizarCuposSeccion,seccionesclases,enviarcorreosnotificacion, clasesByIdCarrera, seccionesByIdClase} from '../controllers/seccion.controlles.js'
 
 const router = Router()
 
@@ -16,5 +16,14 @@ router.get('/consulta-secciones/:carreraId/:centroId/:anio/:periodo',seccionescl
 
 router.get('/enviar-correos-notificacion/:id_seccion', enviarcorreosnotificacion)
 
+
+//AÑADIDO
+// Endpoint para obtener todas las clases de una carrera
+router.get('/clasesDisponibles/:id_carrera', clasesByIdCarrera )
+
+
+  
+  // Endpoint para obtener todas las secciones de una clase
+router.get('/seccionesDisponibles/:id_clase', seccionesByIdClase) 
 
 export default router 
