@@ -185,8 +185,51 @@ export const envioCorreoEstudiante = (req, res) => {
     });
   };
 
-  //editar nota del estudiante 
+  // Endpoint para realizar la consulta listar los alumnos segun el id de la clase //acordate
+/*export const claseAlumnoidseccion = (req, res) => {
+  const id_seccion = req.params.id_seccion;
   
+  // Consulta SQL
+  const sql = `
+    SELECT m.*, e.num_cuenta, e.primer_nombre, e.primer_apellido, e.correo_institucional, m.id_seccion, c.id_clase
+    FROM matricula m
+    INNER JOIN estudiante e ON m.num_cuenta = e.num_cuenta
+    INNER JOIN seccion s ON m.id_seccion = s.id_seccion
+    INNER JOIN clase c ON s.id_clase = c.id_clase
+    WHERE m.id_seccion = ?
+  `;
+
+  db.query(sql, [id_seccion], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: 'Error al consultar la base de datos' });
+    }
+
+    res.json(results);
+  });
+};*/
+
+//insertar en la tabla clases pasada luego de haber cambiado la nota del estudiante //acordate
+export const insertarclasepasada = (req, res) => {
+  const id_clase = req.body.id_clase;
+  const id_estudiante = req.body.id_estudiante;
+  const nota = req.body.nota;
+
+  // Consulta SQL para el INSERT
+  const sql = 'INSERT INTO clase_pasada (id_clase, id_estudiante, nota) VALUES (?, ?, ?)';
+
+  // Ejecutar la consulta con los datos proporcionados
+  db.query(sql, [id_clase, id_estudiante, nota], (err, result) => {
+    if (err) {
+      console.error('Error al insertar en la base de datos:', err);
+      res.status(500).json({ error: 'Error al insertar en la base de datos' });
+    } else {
+      console.log('Registro insertado correctamente');
+      res.status(200).json({ message: 'Registro insertado correctamente' });
+    }
+  });
+};
+
+  //editar nota del estudiante 
   export const notaEstudiante = (req, res) => {
     const idClase = req.params.id_clase;
     const idEstudiante = req.params.id_estudiante;
@@ -462,6 +505,44 @@ export const clases_matriculadas = (req, res) => {
     if (err) {
       console.error('Error en la consulta:', err);
       res.status(500).json({ error: 'Error al ejecutar la consulta' });
+    } else {
+      res.json(results);
+    }
+  });
+};
+
+
+export const estudianteSeccionObtener = (req, res) => {
+  const idSeccion = req.params.idSeccion;
+
+  const sqlQuery = `
+    SELECT 
+        estudiante.primer_nombre,
+        estudiante.segundo_nombre,
+        estudiante.primer_apellido,
+        estudiante.segundo_apellido,
+        estudiante.num_cuenta,
+        estudiante.correo_institucional,
+        COALESCE(clase_pasada.nota, 0) AS nota,
+        CONCAT('http://localhost:8081/', imagen.nombre_archivo) AS nombre_archivo_completo
+    FROM
+        matricula
+    INNER JOIN
+        estudiante ON matricula.num_cuenta = estudiante.num_cuenta
+    LEFT JOIN
+        seccion ON matricula.id_seccion = seccion.id_seccion
+    LEFT JOIN
+        clase_pasada ON estudiante.num_cuenta = clase_pasada.id_estudiante AND seccion.id_clase = clase_pasada.id_clase
+    LEFT JOIN
+        imagen ON estudiante.num_cuenta = imagen.id_estudiante
+    WHERE
+        seccion.id_seccion = ?;
+  `;
+
+  db.query(sqlQuery, [idSeccion], (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta:', err);
+      res.status(500).json({ error: 'Error al obtener los datos de la base de datos' });
     } else {
       res.json(results);
     }
