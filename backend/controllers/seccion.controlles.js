@@ -248,7 +248,9 @@ export const crearSeccion = (req, res) => {
       d.nombres,
       d.apellidos,
       e.nombre AS nombre_edificio,
-      a.*
+      a.*,
+      s.cupos AS numero_cupos,
+      COUNT(m.num_cuenta) AS numero_estudiantes_matriculados
   FROM 
       seccion s
   INNER JOIN 
@@ -257,7 +259,18 @@ export const crearSeccion = (req, res) => {
       edificio e ON s.id_edificio = e.id_edificio
   INNER JOIN 
       aula a ON s.id_aula = a.id_aula
-  WHERE id_clase = ?`;
+  LEFT JOIN 
+      matricula m ON s.id_seccion = m.id_seccion
+  WHERE 
+      s.id_clase = ?
+  GROUP BY 
+      s.id_seccion,
+      d.nombres,
+      d.apellidos,
+      e.nombre,
+      a.id_aula,
+      s.cupos;`
+  ;
     
       db.query(sqlQuery, [id_clase], (err, results) => {
         if (err) {
@@ -268,3 +281,5 @@ export const crearSeccion = (req, res) => {
         }
       });
     };
+
+    
