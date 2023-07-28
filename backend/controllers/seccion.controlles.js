@@ -268,3 +268,21 @@ export const crearSeccion = (req, res) => {
         }
       });
     };
+
+
+    // Endpoint para actualizar la cantidad de cupos en la sección
+export const seccionActualizarCupos = (req, res) => {
+  const idSeccion = req.params.id_seccion;
+  const nuevosCupos = req.body.cupos;
+
+  const sql = 'UPDATE seccion SET cupos = ? WHERE id_seccion = ?';
+
+  db.query(sql, [nuevosCupos, idSeccion], (err, result) => {
+    if (err) {
+      console.error('Error al actualizar los cupos:', err);
+      res.status(500).json({ error: 'Error al actualizar los cupos' });
+    } else {
+      res.json({ message: 'Cupos actualizados exitosamente' });
+    }
+  });
+};
