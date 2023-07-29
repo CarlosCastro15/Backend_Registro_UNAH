@@ -215,10 +215,11 @@ export const insertarclasepasada = (req, res) => {
   const nota = req.body.nota;
 
   // Consulta SQL para el INSERT
-  const sql = 'INSERT INTO clase_pasada (id_clase, id_estudiante, nota) VALUES (?, ?, ?)';
+  // const sql = 'INSERT INTO clase_pasada (id_clase, id_estudiante, nota) VALUES (?, ?, ?)';
+  const sql = 'UPDATE clase_pasada SET nota = ? WHERE (id_clase = ? && id_estudiante =? )'
 
   // Ejecutar la consulta con los datos proporcionados
-  db.query(sql, [id_clase, id_estudiante, nota], (err, result) => {
+  db.query(sql, [ nota, id_clase, id_estudiante], (err, result) => {
     if (err) {
       console.error('Error al insertar en la base de datos:', err);
       res.status(500).json({ error: 'Error al insertar en la base de datos' });
