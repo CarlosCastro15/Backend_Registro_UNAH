@@ -250,7 +250,8 @@ export const crearSeccion = (req, res) => {
       e.nombre AS nombre_edificio,
       a.*,
       s.cupos AS numero_cupos,
-      COUNT(m.num_cuenta) AS numero_estudiantes_matriculados
+      COUNT(DISTINCT m.num_cuenta) AS numero_estudiantes_matriculados,
+      COUNT(DISTINCT le.num_cuenta) AS numero_estudiantes_lista_espera
   FROM 
       seccion s
   INNER JOIN 
@@ -261,6 +262,8 @@ export const crearSeccion = (req, res) => {
       aula a ON s.id_aula = a.id_aula
   LEFT JOIN 
       matricula m ON s.id_seccion = m.id_seccion
+  LEFT JOIN
+      lista_espera le ON s.id_seccion = le.id_seccion
   WHERE 
       s.id_clase = ?
   GROUP BY 
