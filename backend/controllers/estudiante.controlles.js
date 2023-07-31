@@ -23,7 +23,7 @@ export const getEstudiante = (req, res) => {
 export const getEstudianteId = (req, res) => {
     const idEstudiante = req.params.num_cuenta;
   
-    const sql = 'SELECT * FROM estudiante WHERE num_cuenta = ?';
+    const sql = 'SELECT e.*, c.nombre AS nombre_carrera, ce.nombre AS nombre_centro FROM estudiante e JOIN carrera c ON e.carrera_id = c.id JOIN centro ce ON e.centro_id = ce.id WHERE e.num_cuenta = ?';
     db.query(sql, [idEstudiante], (err, results) => {
       if (err) {
         console.error('Error al obtener el estudiante: ' + err);
