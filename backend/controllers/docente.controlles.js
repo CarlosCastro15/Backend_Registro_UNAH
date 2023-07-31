@@ -292,3 +292,21 @@ export const getHistorialByNumCuenta = (req, res) => {
   });
 };
 
+export const getEvaluciones = (req, res) => {
+  const { num_empleado, anio, periodo } = req.params;
+  const sqlQuery = `
+    SELECT c.*, cl.nombre AS nombre_clase
+    FROM comentarios c
+    INNER JOIN seccion s ON c.id_seccion = s.id_seccion
+    INNER JOIN clase cl ON s.id_clase = cl.id_clase
+    WHERE s.num_empleado = ? AND YEAR(s.anio) = ? AND s.periodo = ?
+  `;
+  db.query(sqlQuery, [num_empleado, anio, periodo], (err, results) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ error: 'Error al ejecutar la consulta' });
+    }
+    res.json(results);
+  });
+};
+

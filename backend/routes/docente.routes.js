@@ -1,5 +1,17 @@
 import {Router} from 'express'
-import {carrerasCentro,docenteCarreraCentro,actualizarCargoDocente,envioCorreoDocente,restaContraDocente,docenteCarreraCentroById, getDocenteById,clasesDocente,docentecarreranombre, centroById, getDocenteByCorreo, getHistorialByNumCuenta} from '../controllers/docente.controlles.js'
+import {carrerasCentro,
+    docenteCarreraCentro,
+    actualizarCargoDocente,
+    envioCorreoDocente,
+    restaContraDocente,
+    docenteCarreraCentroById,
+     getDocenteById,
+     clasesDocente,
+     docentecarreranombre, 
+     centroById, 
+     getDocenteByCorreo,
+      getHistorialByNumCuenta,
+      getEvaluciones} from '../controllers/docente.controlles.js'
 
 const router = Router()
 
@@ -35,6 +47,8 @@ router.get('/docenteCorreo/:correo', getDocenteByCorreo)
 //AÑADIDO 26/7/23
 
 router.get('/historialEstudiante/:numCuenta', getHistorialByNumCuenta)
+
+router.get('/Evaluaciones/:num_empleado/:anio/:periodo', getEvaluciones)
 
 
 export default router 

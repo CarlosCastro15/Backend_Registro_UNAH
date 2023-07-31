@@ -1,8 +1,7 @@
 import {Router} from 'express'
 import {crearSolicitud,
-obtenerSolicitudesPorCoordinador,ActualizarEstado,
-obtenerSolicitudEs,Centro,
-PagoReposicionEstudiante } from '../controllers/Solicitud.controlles.js'
+    obtenerSolicitudesPorCoordinador,ActualizarEstado,obtenerSolicitudEs,Centro,PagoReposicionEstudiante } from '../controllers/Solicitud.controlles.js'
+
 const router = Router()
 router.post('/Crear_Solicitud', crearSolicitud)
 router.get('/Solicitudes_Coordinador', obtenerSolicitudesPorCoordinador)
