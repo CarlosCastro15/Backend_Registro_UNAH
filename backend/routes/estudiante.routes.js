@@ -25,7 +25,8 @@ router.get('/claseAlumno/:id_clase', clasesAlumno)
 router.get('/estudiantes-seccion/:idSeccion', estudianteSeccionObtener)
 
 //PREGUNTAR A ROBERTO
-router.post('/insertar-nota-clasepasada', insertarclasepasada)
+router.post('/insertar-nota-actualizar', insertarclasepasada)
+
 
 //editar nota del estudiante segun num_cuenta en la tabla clases_pasadas Roberto
 router.put('/clase-pasada-nota/:id_clase/:id_estudiante', notaEstudiante)

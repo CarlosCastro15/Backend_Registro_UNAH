@@ -210,22 +210,20 @@ export const envioCorreoEstudiante = (req, res) => {
 
 //insertar en la tabla clases pasada luego de haber cambiado la nota del estudiante //acordate
 export const insertarclasepasada = (req, res) => {
-  const id_clase = req.body.id_clase;
-  const id_estudiante = req.body.id_estudiante;
-  const nota = req.body.nota;
+  const { id_clase, id_estudiante, nota } = req.body;
 
-  // Consulta SQL para el INSERT
-  // const sql = 'INSERT INTO clase_pasada (id_clase, id_estudiante, nota) VALUES (?, ?, ?)';
-  const sql = 'UPDATE clase_pasada SET nota = ? WHERE (id_clase = ? && id_estudiante =? )'
+  const query = `
+    INSERT INTO clase_pasada (id_clase, id_estudiante, nota)
+    VALUES (?, ?, ?)
+    ON DUPLICATE KEY UPDATE nota = VALUES(nota)
+  `;
 
-  // Ejecutar la consulta con los datos proporcionados
-  db.query(sql, [ nota, id_clase, id_estudiante], (err, result) => {
+  db.query(query, [id_clase, id_estudiante, nota], (err, results) => {
     if (err) {
-      console.error('Error al insertar en la base de datos:', err);
-      res.status(500).json({ error: 'Error al insertar en la base de datos' });
+      console.error('Error al ejecutar la consulta:', err.message);
+      res.status(500).send('Error al ejecutar la consulta');
     } else {
-      console.log('Registro insertado correctamente');
-      res.status(200).json({ message: 'Registro insertado correctamente' });
+      res.status(200).send('Inserción exitosa o actualización realizada correctamente');
     }
   });
 };
