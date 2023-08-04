@@ -547,3 +547,25 @@ export const estudianteSeccionObtener = (req, res) => {
     }
   });
 };
+//Historial
+export const clases_historial = (req, res) => {
+  const numCuenta = req.params.num_cuenta;
+ 
+
+  const sqlQuery = `
+  SELECT cp.id, cp.nota,  c.codigo, c.nombre AS nombre, s.periodo,year(s.anio) as anio
+    FROM clase_pasada cp
+    JOIN clase c ON cp.id_clase = c.id_clase
+    JOIN seccion s ON c.id_clase = s.id_clase
+    WHERE cp.id_estudiante= ?
+  `;
+
+  db.query(sqlQuery, [numCuenta], (err, results) => {
+    if (err) {
+      console.error('Error en la consulta:', err);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+    } else {
+      res.json(results);
+    }
+  });
+};
