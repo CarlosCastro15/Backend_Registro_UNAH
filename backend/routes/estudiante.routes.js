@@ -10,7 +10,7 @@ import {getEstudiante,
     ,verificarRequisito,verificarHorario,
     matriculaSeccion,eliminarClase, clases_matriculadas
     ,clasesAlumno,insertarclasepasada,estudianteSeccionObtener,
-    clases_historial} from '../controllers/estudiante.controlles.js'
+    clases_historial,enviarCorreoNumCuenta} from '../controllers/estudiante.controlles.js'
 
 const router = Router()
 
@@ -36,7 +36,7 @@ router.get('/claseAlumno/:id_clase', clasesAlumno)
 router.get('/estudiantes-seccion/:idSeccion', estudianteSeccionObtener)
 
 //PREGUNTAR A ROBERTO
-router.post('/insertar-nota-actualizar', insertarclasepasada)
+router.post('/insertar-nota-clasepasada', insertarclasepasada)
 
 
 //editar nota del estudiante segun num_cuenta en la tabla clases_pasadas Roberto
@@ -57,4 +57,6 @@ router.delete('/eliminar-clase/:num_cuenta/:id_seccion', eliminarClase )
 router.get('/clases-matriculadas/:num_cuenta/:anio/:periodo',clases_matriculadas)
 router.get('/clases-historial/:num_cuenta',clases_historial)
 
+
+router.get('/enviar-correo-solicitud/:numCuenta', enviarCorreoNumCuenta)
 export default router 

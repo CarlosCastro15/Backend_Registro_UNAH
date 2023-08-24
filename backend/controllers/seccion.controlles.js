@@ -4,29 +4,28 @@ import nodemailer from 'nodemailer'
 
 
 export const crearSeccion = (req, res) => {
-    const sql = "INSERT INTO seccion (id_clase, num_empleado, id_aula, dias, cupos, id_edificio) VALUES (?,?,?,?,?,?)";
-    const {id_clase, num_empleado, id_aula, dias, cupos, id_edificio } = req.body;
-  
-    const values = [id_clase, num_empleado, id_aula, dias, cupos, id_edificio];
-  
-    db.query(sql, values, (err, data) => {
-      if (err) {
-        return res.json("Error");
-      }
-      return res.json(data);
-    });
-    const query = 'UPDATE aula SET disponibilidad = 0 WHERE id_aula = ?';
-  
-    db.query(query, [id_aula], (err, results) => {
-      if (err) {
-        console.error('Error al actualizar la disponibilidad: ', err);
-        return;
-      }
-      console.log('Disponibilidad actualizada correctamente');
-      console.log(results);
-    });
-  };
-  
+  const sql = "INSERT INTO seccion (id_clase, num_empleado, id_aula, dias, cupos, id_edificio, anio, periodo) VALUES (?,?,?,?,?,?,?,?)";
+  const {id_clase, num_empleado, id_aula, dias, cupos, id_edificio, anio, periodo} = req.body;
+
+  const values = [id_clase, num_empleado, id_aula, dias, cupos, id_edificio, anio, periodo];
+
+  db.query(sql, values, (err, data) => {
+    if (err) {
+      return res.json("Error");
+    }
+    return res.json(data);
+  });
+  const query = 'UPDATE aula SET disponibilidad = 0 WHERE id_aula = ?';
+
+  db.query(query, [id_aula], (err, results) => {
+    if (err) {
+      console.error('Error al actualizar la disponibilidad: ', err);
+      return;
+    }
+    console.log('Disponibilidad actualizada correctamente');
+    console.log(results);
+  });
+};
   
   // AÑADIDOS
   
@@ -112,32 +111,32 @@ export const crearSeccion = (req, res) => {
   
 
   const query = `
-          SELECT
-          s.id_seccion,
-          s.cupos,
-          s.id_clase,
-          c.codigo AS codigo_clase, -- Nueva columna para el código de la clase
-          c.nombre AS nombre_clase,
-          s.num_empleado,
-          CONCAT(d.nombres, ' ', d.apellidos) AS nombre_empleado,
-          s.id_edificio,
-          e.nombre AS nombre_edificio,
-          s.id_aula,
-          a.num_aula
-        FROM
-          seccion AS s
-          INNER JOIN clase AS c ON s.id_clase = c.id_clase
-          INNER JOIN docente AS d ON s.num_empleado = d.num_empleado
-          INNER JOIN edificio AS e ON s.id_edificio = e.id_edificio
-          INNER JOIN aula AS a ON s.id_aula = a.id_aula
-          INNER JOIN proceso AS p ON s.anio = p.anio AND s.periodo = p.periodo
-          INNER JOIN carrera AS carr ON c.id_carrera = carr.id
-          INNER JOIN centro AS centro ON carr.centro_id = centro.id
-        WHERE
-        carr.id = ?
-        AND centro.id = ?
-        AND YEAR(p.anio)= ?
-        AND p.periodo = ?;
+    SELECT
+    DISTINCT s.id_seccion,
+    s.cupos,
+    s.id_clase,
+    c.codigo AS codigo_clase,
+    c.nombre AS nombre_clase,
+    s.num_empleado,
+    CONCAT(d.nombres, ' ', d.apellidos) AS nombre_empleado,
+   s.id_edificio,
+    e.nombre AS nombre_edificio,
+    s.id_aula,
+    a.num_aula
+  FROM
+    seccion AS s
+    INNER JOIN clase AS c ON s.id_clase = c.id_clase
+    INNER JOIN docente AS d ON s.num_empleado = d.num_empleado
+    INNER JOIN edificio AS e ON s.id_edificio = e.id_edificio
+    INNER JOIN aula AS a ON s.id_aula = a.id_aula
+    INNER JOIN proceso AS p ON s.anio = p.anio AND s.periodo = p.periodo
+    INNER JOIN carrera AS carr ON c.id_carrera = carr.id
+    INNER JOIN centro AS centro ON carr.centro_id = centro.id
+  WHERE
+    carr.id = ?
+    AND centro.id = ?
+    AND YEAR(p.anio) = ?
+    AND p.periodo = ?;
   `;
 
   db.query(query, [carreraId, centroId, anio, periodo], (err, results) => {
