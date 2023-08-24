@@ -151,6 +151,8 @@ const transporter = nodemailer.createTransport({
   
       for (const obj of jsonData) {
         // Verificar si la identidad ya existe en la base de datos
+        obj.identidad = formatearIdentidad(obj.identidad);
+        
         const identidadExistente = await new Promise((resolve, reject) => {
           const sql = 'SELECT COUNT(*) as count FROM estudiante WHERE identidad = ?';
           db.query(sql, [obj.identidad], (error, results) => {
@@ -243,6 +245,19 @@ const obtenerMaximoContador = () => {
     });
 };
 
+// Función para verificar y formatear la identidad si es necesario
+const formatearIdentidad = (identidad) => {
+  // Eliminar guiones actuales si los hay
+  identidad = identidad.replace(/-/g, '');
+
+  // Verificar si la identidad tiene el formato correcto (xxxx-xxxx-xxxxx)
+  if (identidad.length === 15 && /^\d{4}-\d{4}-\d{5}$/.test(identidad)) {
+      return identidad; // La identidad ya está en el formato correcto
+  }
+
+  // Si no tiene el formato correcto, agregar guiones
+  return identidad.replace(/(\d{4})(\d{4})(\d{5})/, '$1-$2-$3');
+};
 //En el correo vamos añadirle los ultimos 4 digitos del numero de cuenta
 // angel.1000@unah.edu
 
