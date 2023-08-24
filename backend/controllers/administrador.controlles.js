@@ -4,19 +4,22 @@ import nodemailer from'nodemailer'
 
 // ENDPOINT: CREAR UN DOCENTE
 export const creardocente = (req, res) => {
-    // const sql = "INSERT INTO login (`name`, `email`, `password`) VALUES (?)";
-    const sql = "INSERT INTO docente (nombres, apellidos, identidad, correo, password, carrera, centro) VALUES (?,?,?,?,?,?,?)";
-    const { nombres, apellidos, identidad, email, password, carrera, centro } = req.body;
+  // const sql = "INSERT INTO login (`name`, `email`, `password`) VALUES (?)";
+  const sql = "INSERT INTO docente (nombres, apellidos, identidad, correo, password, carrera_id, centro_id) VALUES (?,?,?,?,?,?,?)";
+  const { nombres, apellidos, identidad, email, password, carrera, centro } = req.body;
 
-    const values = [nombres, apellidos, identidad, email, password, carrera, centro];
+  const centroNumero = parseInt(centro)
+  const carreraNumero = parseInt(carrera)
 
-    
-    db.query(sql, values, (err, data) => {
-        if (err) {
-            return res.json("Error");
-        }
-        return res.json(data);
-    })
+  const values = [nombres, apellidos, identidad, email, password, carreraNumero, centroNumero];
+
+  
+  db.query(sql, values, (err, data) => {
+      if (err) {
+          return res.json("Error");
+      }
+      return res.json(data);
+  })
 }
 
 // ENDPOINT: INICIO DE SESION DE ADMINISTRADOR
