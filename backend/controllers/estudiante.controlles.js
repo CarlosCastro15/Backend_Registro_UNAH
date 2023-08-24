@@ -569,3 +569,59 @@ export const clases_historial = (req, res) => {
     }
   });
 };
+
+
+// Ruta para enviar correos
+export const enviarCorreoNumCuenta = (req, res) => {
+  const numCuentaParam = req.params.numCuenta;
+
+  // Consulta SQL para obtener información del estudiante
+  const selectQuery = `SELECT * FROM estudiante WHERE num_cuenta = ${numCuentaParam}`;
+
+  // Ejecutar la consulta
+  db.query(selectQuery, (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta:', err);
+      res.status(500).send('Error al consultar la base de datos');
+      return;
+    }
+
+    // Verificar si se encontraron resultados
+    if (results.length === 0) {
+      res.status(404).send('No se encontró ningún estudiante con ese número de cuenta.');
+      return;
+    }
+
+    const student = results[0]; // Tomar el primer resultado (debería ser único por el número de cuenta)
+
+    // Configuración de nodemailer para enviar correos
+    const transporter = nodemailer.createTransport({
+      service: 'gmail', // Cambiar al proveedor de correo que quieras usar
+      auth: {
+        user: '07castro.carlos@gmail.com',
+        pass: 'falwoicxephoscez'
+      }
+    });
+
+    
+    const mailOptions = {
+      from: '07castro.carlos@gmail.com',
+      to: student.correo_institucional,
+      subject: 'Docente UNAH',
+      html: `<html><head><meta charset="UTF-8"><title>Mensaje de correo electrónico</title></head><body><div style="max-width: 600px; margin: 0 auto;"><h1>UNIVERSIDAD NACIONAL AUTONOMA DE HONDURAS</h1><p>Estimado/a estudiante el presente correo es para informale que ya se respondio su solicitud enviada al coordinador de la carrera favor revisar el estado de la solicitud, este es un mensaje generado automaticamente, favor no responderlo\</p><p></p><p>Saludos,</p><p>Coordinacion Ingenieria</p></div></body></html>`
+    };
+
+    // Enviar el correo
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error al enviar el correo:', error);
+        res.status(500).send('Error al enviar el correo');
+      } else {
+        console.log('Correo enviado:', info.response);
+        res.send('Correo enviado exitosamente');
+      }
+    });
+  });
+};
+
+
