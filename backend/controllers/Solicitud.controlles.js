@@ -1,5 +1,6 @@
 import { db } from '../db.js';
 import path  from 'path'
+
 export const crearSolicitud = (req, res) => {
   const { tipo_solicitud, num_cuenta, justificacion, id_carrera, id_centro, id_clase } = req.body;
   const nombre_archivo = path.basename(req.file.path);
@@ -55,19 +56,21 @@ export const crearSolicitud = (req, res) => {
 export const obtenerSolicitudesPorCoordinador = (req, res) => {
   const { num_empleado } = req.query;
   const values = [num_empleado];
-  const query = `
-    SELECT
-      solicitud.*,
-      COALESCE(carrera.nombre, ' ') AS nombre_carrera,
-      COALESCE(centro.nombre, ' ') AS nombre_centro
-    FROM
-      solicitud
-    LEFT JOIN
-      carrera ON solicitud.id_carrera = carrera.id
-    LEFT JOIN
-      centro ON solicitud.id_centro = centro.id
-    WHERE
-      solicitud.num_empleado = ? 
+  const query = `SELECT
+  solicitud.*,
+  COALESCE(carrera.nombre, ' ') AS nombre_carrera,
+  COALESCE(centro.nombre, ' ') AS nombre_centro,
+ COALESCE(clase.nombre, ' ') AS nombre_clase
+FROM
+  solicitud
+LEFT JOIN
+  carrera ON solicitud.id_carrera = carrera.id
+LEFT JOIN
+  centro ON solicitud.id_centro = centro.id
+  LEFT JOIN
+  clase ON solicitud.id_clase = clase.id_clase
+WHERE
+  solicitud.num_empleado = ? 
   `;
 
   db.query(query, values, (error, results) => {
@@ -101,6 +104,26 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
       }
     });
   };
+  export const eliminarClase = (num_cuenta, id_clase) => {
+    const query = `DELETE matricula
+      FROM matricula
+      JOIN seccion ON matricula.id_seccion = seccion.id_seccion
+      WHERE matricula.num_cuenta = ?
+        AND seccion.id_clase = ?`;
+          
+    const values = [num_cuenta, id_clase];
+    db.query(query, values, (error, result) => {
+      if (error) {
+        console.error('Error al ejecutar el DELETE:', error);
+        return;
+      }
+  
+      console.log('Clase eliminada correctamente:', result);
+    });
+  };
+  
+  
+  
   export const Centro = (req, res) => {
   
   
@@ -168,7 +191,8 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
       }
     });
   };
-  
+
+ 
   export const ActualizarEstado = (req, res) => {
   const { id } = req.params;
   const { estado } = req.body;
@@ -216,7 +240,10 @@ export const obtenerSolicitudesPorCoordinador = (req, res) => {
                   break;
                 case "Pago Reposición":                  
                   actualizarPagoReposicionEstudiante(num_cuenta);
-                  break;              
+                  break;
+                  case "Cancelación Excepcional":                 
+                  eliminarClase(num_cuenta, id_clase);
+                  break;             
                 default:                  
                   break;
               }
