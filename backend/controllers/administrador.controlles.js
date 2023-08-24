@@ -5,10 +5,10 @@ import nodemailer from'nodemailer'
 // ENDPOINT: CREAR UN DOCENTE
 export const creardocente = (req, res) => {
     // const sql = "INSERT INTO login (`name`, `email`, `password`) VALUES (?)";
-    const sql = "INSERT INTO docente (nombres, apellidos, identidad, correo, password, foto, centro) VALUES (?,?,?,?,?,?,?)";
-    const { nombres, apellidos, identidad, email, password, foto, centro } = req.body;
+    const sql = "INSERT INTO docente (nombres, apellidos, identidad, correo, password, carrera, centro) VALUES (?,?,?,?,?,?,?)";
+    const { nombres, apellidos, identidad, email, password, carrera, centro } = req.body;
 
-    const values = [nombres, apellidos, identidad, email, password, foto, centro];
+    const values = [nombres, apellidos, identidad, email, password, carrera, centro];
 
     
     db.query(sql, values, (err, data) => {
