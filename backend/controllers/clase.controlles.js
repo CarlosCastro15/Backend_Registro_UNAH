@@ -51,3 +51,26 @@ export const clasesNoPasadas = (req, res) => {
       }
     });
   };
+
+  //Para Roberto
+  export const edificioAula = (req, res) => {
+    const { id_edificio, horainicio, horafin, dias } = req.query;
+  
+    const sql = `
+      SELECT *
+      FROM aula
+      WHERE id_edificio = ? 
+      AND horainicio = ?
+      AND horafin = ?
+      AND dias = ?
+    `;
+  
+    db.query(sql, [id_edificio, horainicio, horafin, dias], (err, results) => {
+      if (err) {
+        console.error('Error al ejecutar la consulta: ' + err.message);
+        res.status(500).json({ error: 'Error en el servidor' });
+      } else {
+        res.json({ results });
+      }
+    });
+  }
