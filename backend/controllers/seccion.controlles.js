@@ -302,3 +302,48 @@ export const seccionActualizarCupos = (req, res) => {
   });
 };
 
+// Define el endpoint para insertar datos en la tabla 'seccion'
+
+ export const insertarSeccion = (req, res) => {
+  const {
+    id_clase,
+    anio,
+    periodo,
+    num_empleado,
+    id_aula,
+    dias,
+    cupos,
+    id_edificio,
+    horainicio,
+    horafin
+  } = req.body;
+
+  const query = `
+    INSERT INTO seccion
+    (id_clase, anio, periodo, num_empleado, id_aula, dias, cupos, id_edificio, horainicio, horafin)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+
+  const values = [
+    id_clase,
+    anio,
+    periodo,
+    num_empleado,
+    id_aula,
+    dias,
+    cupos,
+    id_edificio,
+    horainicio,
+    horafin
+  ];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      console.error('Error al insertar datos:', err);
+      res.status(500).json({ error: 'Error al insertar datos en la tabla seccion' });
+    } else {
+      res.status(201).json({ message: 'Datos insertados correctamente en la tabla seccion' });
+    }
+  });
+}
+    

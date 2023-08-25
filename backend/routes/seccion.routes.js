@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {crearSeccion,eliminarSeccion,seccionporId,actualizarCuposSeccion,seccionesclases,enviarcorreosnotificacion, clasesByIdCarrera, seccionesByIdClase, seccionActualizarCupos} from '../controllers/seccion.controlles.js'
+import {crearSeccion,eliminarSeccion,seccionporId,actualizarCuposSeccion,seccionesclases,enviarcorreosnotificacion, clasesByIdCarrera, seccionesByIdClase, seccionActualizarCupos, insertarSeccion} from '../controllers/seccion.controlles.js'
 
 const router = Router()
 
@@ -15,6 +15,9 @@ router.post('/actucupos/cupos/:id_seccion', actualizarCuposSeccion)
 router.get('/consulta-secciones/:carreraId/:centroId/:anio/:periodo',seccionesclases)
 
 router.get('/enviar-correos-notificacion/:id_seccion', enviarcorreosnotificacion)
+
+//Insertar en la tabla seccion Roberto
+router.post('/seccion-insertar', insertarSeccion)
 
 //AÑADIDO
 // Endpoint para obtener todas las clases de una carrera
