@@ -6,7 +6,7 @@ import nodemailer from'nodemailer'
 export const clasesCarrera = (req, res) => {
     const nombreCarrera = req.params.nombre;
     
-    const sql = `SELECT cl.id_clase, cl.nombre AS nombre_clase
+    const sql = `SELECT cl.id_clase, cl.codigo, cl.unidades_valo, cl.nombre AS nombre_clase
                  FROM carrera c
                  JOIN clase cl ON c.id = cl.id_carrera
                  WHERE c.nombre = ? `;
