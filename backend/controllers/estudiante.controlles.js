@@ -296,190 +296,12 @@ export const clasesByIdEstudiante = (req, res) => {
 
 }
 
-export const verificarRequisito = (req, res) => {
-  const idClase = req.params.idClase;
-
-  // Consultar los requisitos de la clase solicitada
-  const query = `SELECT Requisito1, Requisito2 FROM c_ing_sistemas WHERE IdClase = ${idClase}`;
-
-  db.query(query, (err, result) => {
-    if (err) {
-      console.error('Error al consultar los requisitos de la clase: ', err);
-      res.status(500).json({ error: 'Ocurrió un error al verificar los requisitos de la clase' });
-      return;
-    }
-
-    if (result.length === 0) {
-      res.status(404).json({ error: 'La clase especificada no existe' });
-      return;
-    }
-
-    const requisito1 = result[0].Requisito1;
-    const requisito2 = result[0].Requisito2;
-
-    // Consultar si el estudiante ha aprobado los requisitos
-    const estudianteId = 20231021; // ID del estudiante (debe obtenerse de alguna manera)
-
-    let requisitosQuery = '';
-
-    if (requisito1) {
-      requisitosQuery += `
-        SELECT COUNT(*) AS count
-        FROM clase_pasada
-        WHERE id_clase = ${requisito1}
-          AND id_estudiante = ${estudianteId}
-          AND nota >= 65
-      `;
-    }
-
-    if (requisito2) {
-      if (requisitoQuery) {
-        requisitosQuery += ' UNION ';
-      }
-
-      requisitosQuery += `
-        SELECT COUNT(*)
-        FROM clase_pasada
-        WHERE id_clase = ${requisito2}
-          AND id_estudiante = ${estudianteId}
-          AND nota >= 65
-      `;
-    }
-
-    if (!requisito1 && !requisito2) {
-      // La clase no tiene requisitos
-      res.json({ resultado: 'El estudiante cumple con los requisitos para la clase solicitada' });
-      // res.json({ resultado: 'La clase no tiene requisitos' });
-
-      return;
-    }
-
-    db.query(requisitosQuery, (err, result) => {
-      if (err) {
-        console.error('Error al verificar los requisitos del estudiante: ', err);
-        res.status(500).json({ error: 'Ocurrió un error al verificar los requisitos del estudiante' });
-        return;
-      }
-
-      const count = result.reduce((total, row) => total + row.count, 0);
-
-      if (count === result.length) {
-        res.json({ resultado: 'El estudiante cumple con los requisitos para la clase solicitada' });
-      } else {
-        res.json({ resultado: 'El estudiante no cumple con los requisitos para la clase solicitada' });
-      }
-    });
-  });
-}
-
-export const verificarHorario = (req, res) => {
-  const idSeccion = req.params.idSeccion;
-  const num_cuenta = req.params.num_cuenta;
-  const anio = req.params.anio;
-  const periodo = req.params.periodo;
-  //id del estudiante
-  //anio y periodo del proceso matricula disponibilidad = 1
-
-  // Obtener la información de la sección seleccionada y su aula correspondiente
-  const query = `
-    SELECT s.id_seccion, a.id_aula, a.horainicio, a.horafin
-    FROM seccion s
-    INNER JOIN aula a ON s.id_aula = a.id_aula
-    WHERE s.id_seccion = ${idSeccion}
-  `;
-
-  db.query(query, (err, result) => {
-    if (err) {
-      console.error('Error al consultar la información de la sección: ', err);
-      res.status(500).json({ error: 'Ocurrió un error al verificar la matrícula' });
-      return;
-    }
-
-    if (result.length === 0) {
-      res.status(404).json({ error: 'La sección especificada no existe' });
-      return;
-    }
-
-    const idAula = result[0].id_aula;
-    const horainicio = result[0].horainicio;
-    const horafin = result[0].horafin;
-
-    // Verificar si el estudiante está matriculado en otra clase a la misma hora
-    const estudianteId = 20231021; // ID del estudiante (debe obtenerse de alguna manera)
-
-    // const matriculaQuery = `
-    //   SELECT COUNT(*) AS count
-    //   FROM matricula m
-    //   INNER JOIN seccion s ON m.id_seccion = s.id_seccion
-    //   INNER JOIN aula a ON s.id_aula = a.id_aula
-    //   WHERE m.num_cuenta = ${estudianteId}
-    //     AND a.horainicio = '${horainicio}'
-    //     AND a.horafin = '${horafin}'
-    // `;
-
-//     const matriculaQuery = `
-//   SELECT COUNT(*) AS count
-//   FROM matricula m
-//   INNER JOIN seccion s ON m.id_seccion = s.id_seccion
-//   INNER JOIN aula a ON s.id_aula = a.id_aula
-//   WHERE m.num_cuenta = ${estudianteId}
-//     AND a.horainicio = '${horainicio}'
-//     AND a.horafin = '${horafin}'
-//     AND EXISTS (
-//       SELECT 1
-//       FROM proceso p
-//       WHERE p.anio = '${anio}'
-//         AND p.periodo = '${periodo}'
-//     )
-// `;
-
-const matriculaQuery = `
-  SELECT COUNT(*) AS count
-  FROM matricula m
-  INNER JOIN seccion s ON m.id_seccion = s.id_seccion
-  INNER JOIN aula a ON s.id_aula = a.id_aula
-  INNER JOIN proceso p ON s.anio = p.anio AND s.periodo = p.periodo
-  WHERE m.num_cuenta = ${num_cuenta}
-    AND a.horainicio = '${horainicio}'
-    AND a.horafin = '${horafin}'
-    AND p.anio = '${anio}'
-    AND p.periodo = '${periodo}'
-`;
-
-    db.query(matriculaQuery, (err, result) => {
-      if (err) {
-        console.error('Error al verificar la matrícula del estudiante: ', err);
-        res.status(500).json({ error: 'Ocurrió un error al verificar la matrícula del estudiante' });
-        return;
-      }
-
-      const count = result[0].count;
-
-      if (count > 0) {
-        res.json({ resultado: 'El estudiante ya está matriculado en otra clase a la misma hora' });
-      } else {
-        res.json({ resultado: 'El estudiante no tiene otra clase matriculada a la misma hora' });
-      }
-    });
-  });
-};
 
 
-export const matriculaSeccion = (req, res) => {
-  const numCuenta = req.body.num_cuenta;
-  const idSeccion = req.body.idSeccion;
 
 
-  const sql = 'INSERT INTO matricula (num_cuenta, id_seccion) VALUES (?,?)';
-  db.query(sql, [numCuenta, idSeccion], (error, results) => {
-    if (error) {
-      console.error('Error al ingresar los datos:', error);
-      res.status(500).json({ error: 'Error al ingresar los datos' });
-    } else {
-      res.json({ message: 'Datos ingresados correctamente' });
-    }
-  });
-}
+
+
 
 export const eliminarClase = (req, res) => {
   const num_cuenta = req.params.num_cuenta;
@@ -646,7 +468,6 @@ export const enviarCorreoNumCuenta = (req, res) => {
 };
 
 
-
 //aqui modifico angel
 export const traerDeptosByIdCarrera = (req, res) => {
 
@@ -657,16 +478,271 @@ export const traerDeptosByIdCarrera = (req, res) => {
       JOIN c_ing_sistemas AS c_ing ON cl.id_clase = c_ing.IdClase
       JOIN carrera AS c ON cl.id_carrera = c.id;
     `;
-  
-    db.query(query, (err, results) => {
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta:', err);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+      return;
+    }
+
+    res.json(results);
+  });
+}
+
+export const ObtenerClasesFaltantesByIdEstudiante = (req, res) => {
+  const { id_carrera, id_estudiante } = req.query;
+  const query = `
+    SELECT c.id_clase, c.nombre
+    FROM clase c
+    JOIN carrera cr ON c.id_carrera = cr.id
+    LEFT JOIN clase_pasada cp ON c.id_clase = cp.id_clase AND cp.id_estudiante = ?
+    WHERE cr.id = ?
+      AND (cp.id_estudiante IS NULL OR cp.nota < 65);
+  `;
+
+  db.query(query, [id_estudiante, id_carrera], (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta:', err);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+      return;
+    }
+
+    res.json(results);
+  });
+}
+
+export const verificarRequisito = (req, res) => {
+  // const id_clase = req.params.id_clase;
+  // const num_cuenta = req.params.num_cuenta;
+  const id_clase = req.query.id_clase; // Cambiar req.params por req.query
+  const num_cuenta = req.query.num_cuenta; // Cambiar req.params por req.query
+
+  //AQUI DEBE IR OTRO IF DEL ID DE LA CARRERA PARA ASI EJECUTAR UNO U OTRO CODIGO
+  // Consultar los requisitos de la clase solicitada
+  const query = `SELECT Requisito1, Requisito2 FROM c_ing_sistemas WHERE IdClase = ${id_clase}`;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error('Error al consultar los requisitos de la clase: ', err);
+      res.status(500).json({ error: 'Ocurrió un error al verificar los requisitos de la clase' });
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(404).json({ error: 'La clase especificada no existe' });
+      return;
+    }
+
+    const requisito1 = result[0].Requisito1;
+    const requisito2 = result[0].Requisito2;
+    console.log(requisito1, requisito2);
+
+    // Consultar si el estudiante ha aprobado los requisitos
+    // const estudianteId = 20231021; // ID del estudiante (debe obtenerse de alguna manera)
+
+    let requisitosQuery = '';
+
+    if (requisito1) {
+      requisitosQuery += `
+        SELECT COUNT(*) AS count
+        FROM clase_pasada
+        WHERE id_clase = ${requisito1}
+          AND id_estudiante = ${num_cuenta}
+          AND nota >= 65
+      `;
+    }
+
+    if (requisito2) {
+      if (requisitoQuery) {
+        requisitosQuery += ' UNION ';
+      }
+
+      requisitosQuery += `
+        SELECT COUNT(*)
+        FROM clase_pasada
+        WHERE id_clase = ${requisito2}
+          AND id_estudiante = ${num_cuenta}
+          AND nota >= 65
+      `;
+    }
+
+    if (!requisito1 && !requisito2) {
+      // La clase no tiene requisitos
+      res.json({ resultado: 'El estudiante cumple con los requisitos para la clase solicitada' });
+      // res.json({ resultado: 'La clase no tiene requisitos' });
+
+      return;
+    }
+
+    db.query(requisitosQuery, (err, result) => {
       if (err) {
-        console.error('Error al ejecutar la consulta:', err);
-        res.status(500).json({ error: 'Error al ejecutar la consulta' });
+        console.error('Error al verificar los requisitos del estudiante: ', err);
+        res.status(500).json({ error: 'Ocurrió un error al verificar los requisitos del estudiante' });
         return;
       }
-  
-      res.json(results);
+
+      const count = result.reduce((total, row) => total + row.count, 0);
+      // console.log(result.length);
+      if (count === result.length) {
+        res.json({ resultado: 'El estudiante cumple con los requisitos para la clase solicitada' });
+      } else {
+        res.json({ resultado: 'El estudiante no cumple con los requisitos para la clase solicitada' });
+      }
     });
+  });
 }
+
+
+export const SeccionesPorClase = (req, res) => {
+  const id_clase = req.query.id_clase;
+
+  const query = `
+SELECT 
+  s.*,
+  d.nombres AS nombres_docente,
+  d.apellidos AS apellidos_docente,
+  a.horainicio,
+  a.horafin,
+  a.dias
+FROM 
+  seccion s
+JOIN 
+  docente d ON s.num_empleado = d.num_empleado
+JOIN 
+  aula a ON s.id_aula = a.id_aula
+WHERE 
+  s.id_clase = ?;
+  `;
+
+  db.query(query, [id_clase], (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta:', err);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+      return;
+    }
+
+    res.json(results);
+  });
+}
+
+export const VerificaClasePorIdEst = (req, res) => {
+  const id_clase = req.query.id_clase;
+  const num_cuenta = req.query.num_cuenta;
+
+  const query = `
+    SELECT 
+      CASE WHEN COUNT(s.id_seccion) > 0 THEN true ELSE false END AS tiene_matricula
+    FROM seccion s
+    JOIN matricula m ON s.id_seccion = m.id_seccion
+    WHERE s.id_clase = ?
+      AND m.num_cuenta = ?;
+  `;
+
+  db.query(query, [id_clase, num_cuenta], (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta:', err);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+      return;
+    }
+
+    const tiene_matricula = results[0].tiene_matricula === 1;
+    res.json({ tiene_matricula });
+  });
+}
+
+
+export const verificarHorario = (req, res) => {
+  const id_seccion = req.query.id_seccion;
+  const num_cuenta = req.query.num_cuenta;
+  const anio = req.query.anio;
+  const periodo = req.query.periodo;
+
+  //id del estudiante
+  //anio y periodo del proceso matricula disponibilidad = 1
+
+  // Obtener la información de la sección seleccionada y su aula correspondiente
+  const query = `
+    SELECT s.id_seccion, a.id_aula, a.horainicio, a.horafin
+    FROM seccion s
+    INNER JOIN aula a ON s.id_aula = a.id_aula
+    WHERE s.id_seccion = ${id_seccion}
+  `;
+
+  db.query(query, (err, result) => {
+    if (err) {
+      console.error('Error al consultar la información de la sección: ', err);
+      res.status(500).json({ error: 'Ocurrió un error al verificar la matrícula' });
+      return;
+    }
+
+    if (result.length === 0) {
+      res.status(404).json({ error: 'La sección especificada no existe' });
+      return;
+    }
+
+    const idAula = result[0].id_aula;
+    const horainicio = result[0].horainicio;
+    const horafin = result[0].horafin;
+
+    // Verificar si el estudiante está matriculado en otra clase a la misma hora
+    const matriculaQuery = `
+  SELECT COUNT(*) AS count
+  FROM matricula m
+  INNER JOIN seccion s ON m.id_seccion = s.id_seccion
+  INNER JOIN aula a ON s.id_aula = a.id_aula
+  WHERE m.num_cuenta = ${num_cuenta}
+    AND a.horainicio = '${horainicio}'
+    AND a.horafin = '${horafin}'
+`;
+    //buenooooo
+    // const matriculaQuery = `
+    //   SELECT COUNT(*) AS count
+    //   FROM matricula m
+    //   INNER JOIN seccion s ON m.id_seccion = s.id_seccion
+    //   INNER JOIN aula a ON s.id_aula = a.id_aula
+    //   INNER JOIN proceso p ON s.anio = p.anio AND s.periodo = p.periodo
+    //   WHERE m.num_cuenta = ${num_cuenta}
+    //     AND a.horainicio = '${horainicio}'
+    //     AND a.horafin = '${horafin}'
+    //     AND p.anio = '${anio}'
+    //     AND p.periodo = '${periodo}'
+    // `;
+
+    db.query(matriculaQuery, (err, result) => {
+      if (err) {
+        console.error('Error al verificar la matrícula del estudiante: ', err);
+        res.status(500).json({ error: 'Ocurrió un error al verificar la matrícula del estudiante' });
+        return;
+      }
+
+      const count = result[0].count;
+
+      if (count > 0) {
+        res.json({ resultado: 'El estudiante ya está matriculado en otra clase a la misma hora' });
+      } else {
+        res.json({ resultado: 'El estudiante no tiene otra clase matriculada a la misma hora' });
+      }
+    });
+  });
+};
+
+export const matriculaSeccion = (req, res) => {
+  const numCuenta = req.query.num_cuenta;
+  const id_seccion = req.query.id_seccion;
+
+
+  const sql = 'INSERT INTO matricula (num_cuenta, id_seccion) VALUES (?,?)';
+  db.query(sql, [numCuenta, id_seccion], (error, results) => {
+    if (error) {
+      console.error('Error al ingresar los datos:', error);
+      res.status(500).json({ error: 'Error al ingresar los datos' });
+    } else {
+      res.json({ message: 'Datos ingresados correctamente' });
+    }
+  });
+}
+
+
 
 

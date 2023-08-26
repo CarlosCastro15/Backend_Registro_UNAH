@@ -7,10 +7,9 @@ import {getEstudiante,
     ,restaContraEstudiante,
     actualizarEstuDescri,
     notaEstudiante,clasesByIdEstudiante
-    ,verificarRequisito,verificarHorario,
-    matriculaSeccion,eliminarClase, clases_matriculadas
+    ,eliminarClase, clases_matriculadas
     ,clasesAlumno,insertarclasepasada,estudianteSeccionObtener,
-    clases_historial,enviarCorreoNumCuenta, traerDeptosByIdCarrera} from '../controllers/estudiante.controlles.js'
+    clases_historial,enviarCorreoNumCuenta, traerDeptosByIdCarrera, ObtenerClasesFaltantesByIdEstudiante, verificarRequisito, VerificaClasePorIdEst, SeccionesPorClase, verificarHorario, matriculaSeccion} from '../controllers/estudiante.controlles.js'
 
 const router = Router()
 
@@ -44,13 +43,12 @@ router.put('/clase-pasada-nota/:id_clase/:id_estudiante', notaEstudiante)
 
 //-------------
 //OBTENER CLASESFALTANTES POR MEDIO DEL ID DEL ESTUDIANTE
-router.get('/clasesFaltantesEstudiante/:num_cuenta', clasesByIdEstudiante)
 
-router.get('/verificar-requisitos/:idClase', verificarRequisito)
 
-router.get('/verificar-horario/:idSeccion/:num_cuenta/:anio/:periodo', verificarHorario)
 
-router.post('/insertMatricula', matriculaSeccion);
+
+
+
 
 router.delete('/eliminar-clase/:num_cuenta/:id_seccion', eliminarClase )
 
@@ -60,7 +58,29 @@ router.get('/clases-historial/:num_cuenta',clases_historial)
 
 router.get('/enviar-correo-solicitud/:numCuenta', enviarCorreoNumCuenta)
 
-//desde aqui modifique
+//desde aqui proceso de matricula
+//TRAE TODOS LOS DEPARTAMENTOS DE LA CARRERA A LOS QUE EL ESTUDIANTE PERTENECE 
 router.get('/obtenerDeptos', traerDeptosByIdCarrera)
+
+//TRAE LAS CLASES QUE LE FALTAN AL ESTUDIANTE ENVIANDO EL ID DEL DEPTO Y EL NUM_CUENTA DEL ESTUDDIANTE
+router.get('/clasesFaltantes', ObtenerClasesFaltantesByIdEstudiante)
+
+//VERIFICAR REQUISITO DE SI PUEDE O NO MATRICULAR LA CLASE
+router.get('/verificar-requisitos', verificarRequisito)
+
+//VERIFICA SI TIENE ESA CLASE MATRICULADA YA
+//SI NO LA TIENE MATRICULADA RETORNA FALSE Y SI SI LA TIENE TRUE
+router.get('/verifica-clase', VerificaClasePorIdEst)
+
+//TRAE LAS SECCIONES DISPONIBLES DE ESA CLASE EN ESPECIFICO
+router.get('/secciones-por-clase', SeccionesPorClase)
+
+//VERIFICA QUE EL ESTUDIANTE NO TENGA CLASES MATRICULADAS A ESA HORA DE LA SECCION
+router.get('/verificar-horario', verificarHorario)
+
+//MATRICULA EL ESTUDIANTE EN UNA SECCION
+router.post('/insertMatricula', matriculaSeccion);
+
+
 export default router 
 
