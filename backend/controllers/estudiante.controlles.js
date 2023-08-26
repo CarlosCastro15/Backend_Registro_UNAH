@@ -225,13 +225,14 @@ export const insertarclasepasada = (req, res) => {
     } else {
       // Inserción exitosa o actualización realizada correctamente
       const queryActualizarIndice = `
-        UPDATE estudiante AS e
-        SET e.indice = (
-          SELECT ROUND(AVG(CAST(nota AS DECIMAL(5, 2))), 2)
-          FROM clase_pasada
-          WHERE id_estudiante = e.num_cuenta
-        )
-        WHERE e.num_cuenta = ?
+      UPDATE estudiante AS e
+      SET e.indice = ROUND(
+        (SELECT AVG(CAST(nota AS DECIMAL(5, 2)))
+         FROM clase_pasada
+         WHERE id_estudiante = e.num_cuenta),
+        0
+      )
+      WHERE e.num_cuenta = ?
       `;
 
       db.query(queryActualizarIndice, [id_estudiante], (err, resultadosIndice) => {
