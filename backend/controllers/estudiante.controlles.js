@@ -212,21 +212,41 @@ export const envioCorreoEstudiante = (req, res) => {
 export const insertarclasepasada = (req, res) => {
   const { id_clase, id_estudiante, nota } = req.body;
 
-  const query = `
+  const consulta = `
     INSERT INTO clase_pasada (id_clase, id_estudiante, nota)
     VALUES (?, ?, ?)
     ON DUPLICATE KEY UPDATE nota = VALUES(nota)
   `;
 
-  db.query(query, [id_clase, id_estudiante, nota], (err, results) => {
+  db.query(consulta, [id_clase, id_estudiante, nota], (err, resultados) => {
     if (err) {
       console.error('Error al ejecutar la consulta:', err.message);
       res.status(500).send('Error al ejecutar la consulta');
     } else {
+      // Inserción exitosa o actualización realizada correctamente
+      const queryActualizarIndice = `
+        UPDATE estudiante AS e
+        SET e.indice = (
+          SELECT ROUND(AVG(CAST(nota AS DECIMAL(5, 2))), 2)
+          FROM clase_pasada
+          WHERE id_estudiante = e.num_cuenta
+        )
+        WHERE e.num_cuenta = ?
+      `;
+
+      db.query(queryActualizarIndice, [id_estudiante], (err, resultadosIndice) => {
+        if (err) {
+          console.error('Error al actualizar el índice del estudiante:', err.message);
+        } else {
+          console.log('Índice del estudiante actualizado exitosamente');
+        }
+      });
+
       res.status(200).send('Inserción exitosa o actualización realizada correctamente');
     }
   });
 };
+
 
   //editar nota del estudiante 
   export const notaEstudiante = (req, res) => {
