@@ -645,3 +645,27 @@ export const enviarCorreoNumCuenta = (req, res) => {
 };
 
 
+
+//aqui modifico angel
+export const traerDeptosByIdCarrera = (req, res) => {
+
+  //Aqui sera necesario hacer el ciclo if para ver de que carrera es
+  const query = `
+      SELECT DISTINCT c.id AS id_carrera, c.nombre AS nombre_carrera
+      FROM clase AS cl
+      JOIN c_ing_sistemas AS c_ing ON cl.id_clase = c_ing.IdClase
+      JOIN carrera AS c ON cl.id_carrera = c.id;
+    `;
+  
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Error al ejecutar la consulta:', err);
+        res.status(500).json({ error: 'Error al ejecutar la consulta' });
+        return;
+      }
+  
+      res.json(results);
+    });
+}
+
+

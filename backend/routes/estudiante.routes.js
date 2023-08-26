@@ -10,7 +10,7 @@ import {getEstudiante,
     ,verificarRequisito,verificarHorario,
     matriculaSeccion,eliminarClase, clases_matriculadas
     ,clasesAlumno,insertarclasepasada,estudianteSeccionObtener,
-    clases_historial,enviarCorreoNumCuenta} from '../controllers/estudiante.controlles.js'
+    clases_historial,enviarCorreoNumCuenta, traerDeptosByIdCarrera} from '../controllers/estudiante.controlles.js'
 
 const router = Router()
 
@@ -59,4 +59,8 @@ router.get('/clases-historial/:num_cuenta',clases_historial)
 
 
 router.get('/enviar-correo-solicitud/:numCuenta', enviarCorreoNumCuenta)
+
+//desde aqui modifique
+router.get('/obtenerDeptos', traerDeptosByIdCarrera)
 export default router 
+

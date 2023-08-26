@@ -385,3 +385,32 @@ export const consultaDocente = (req, res) => {
     res.json(results);
   });
 };
+
+
+//desde aqui modifique
+export const VerificarHorarioDocente = (req, res) => {
+
+  const { num_empleado, horaInicial, minutoInicial, horaFinal, minutoFinal } = req.query;
+  const horaInicio = horaInicial + ':' + minutoInicial;
+  const horaFin = horaFinal + ':' + minutoFinal;
+
+  const query = `
+    SELECT d.nombres, d.apellidos, d.correo, d.cargo,
+           a.horainicio AS hora_inicio_aula, a.horafin AS hora_fin_aula
+    FROM docente d
+    JOIN seccion s ON d.num_empleado = s.num_empleado
+    JOIN aula a ON s.id_aula = a.id_aula
+    WHERE d.num_empleado = ? AND a.horainicio = ? AND a.horafin = ?;
+  `;
+
+  db.query(query, [num_empleado, horaInicio, horaFin], (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta:', err);
+      res.status(500).json({ error: 'Error al ejecutar la consulta' });
+      return;
+    }
+
+    const hasData = results.length > 0;
+    res.json({ hasData }); //hasData, que será true si hay datos y false si no los hay.
+  });
+}
