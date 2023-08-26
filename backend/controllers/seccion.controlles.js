@@ -347,3 +347,30 @@ export const seccionActualizarCupos = (req, res) => {
   });
 }
     
+
+
+// Define la ruta para tu consulta
+export const consultaDocente = (req, res) => {
+  const query = `
+    SELECT s1.id_seccion, s1.num_empleado, s1.horainicio
+    FROM seccion s1
+    WHERE NOT EXISTS (
+      SELECT 1
+      FROM seccion s2
+      WHERE s1.num_empleado = s2.num_empleado
+      AND s1.horainicio = s2.horainicio
+      AND s1.id_seccion <> s2.id_seccion
+    )
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta: ' + err.stack);
+      res.status(500).send('Error interno del servidor');
+      return;
+    }
+
+    // Envía los resultados de la consulta como respuesta JSON
+    res.json(results);
+  });
+};

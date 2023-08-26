@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {crearSeccion,eliminarSeccion,seccionporId,actualizarCuposSeccion,seccionesclases,enviarcorreosnotificacion, clasesByIdCarrera, seccionesByIdClase, seccionActualizarCupos, insertarSeccion} from '../controllers/seccion.controlles.js'
+import {crearSeccion,eliminarSeccion,seccionporId,actualizarCuposSeccion,seccionesclases,enviarcorreosnotificacion, clasesByIdCarrera, seccionesByIdClase, seccionActualizarCupos, insertarSeccion, consultaDocente} from '../controllers/seccion.controlles.js'
 
 const router = Router()
 
@@ -28,5 +28,8 @@ router.get('/seccionesDisponibles/:id_clase', seccionesByIdClase)
 
 //FERNANDO PARA ACTUALIZAR LOS CUPOS DE LA SECCION
 router.put('/actualizar-cupos/:id_seccion', seccionActualizarCupos)
+
+//Que el docente si tiene una misma hora no pueda ser asignado a una seccion
+router.get('/consulta-docente', consultaDocente)
 
 export default router 
