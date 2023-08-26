@@ -274,7 +274,7 @@ export const getHistorialByNumCuenta = (req, res) => {
   const numCuenta = req.params.numCuenta;
 
   const consulta = `
-    SELECT cl.codigo, cl.nombre AS nombre_clase, s.anio, s.periodo, cp.nota
+    SELECT DISTINCT  cl.codigo, cl.nombre AS nombre_clase, s.anio, s.periodo, cp.nota
     FROM clase_pasada cp
     INNER JOIN clase cl ON cp.id_clase = cl.id_clase
     INNER JOIN carrera c ON cl.id_carrera = c.id
