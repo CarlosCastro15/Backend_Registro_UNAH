@@ -345,6 +345,17 @@ export const seccionActualizarCupos = (req, res) => {
       res.status(201).json({ message: 'Datos insertados correctamente en la tabla seccion' });
     }
   });
+
+  const sql = 'UPDATE aula SET disponibilidad = 1 WHERE id_aula = ?';
+
+  db.query(sql, [id_aula], (err, results) => {
+    if (err) {
+      console.error('Error al actualizar la disponibilidad: ', err);
+      return;
+    }
+    console.log('Disponibilidad actualizada correctamente');
+    console.log(results);
+  });
 }
     
 

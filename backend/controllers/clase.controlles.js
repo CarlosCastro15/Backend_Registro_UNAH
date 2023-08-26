@@ -63,6 +63,7 @@ export const clasesNoPasadas = (req, res) => {
       AND horainicio = ?
       AND horafin = ?
       AND dias = ?
+      AND disponibilidad = 0
     `;
   
     db.query(sql, [id_edificio, horainicio, horafin, dias], (err, results) => {
