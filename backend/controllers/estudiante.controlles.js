@@ -512,13 +512,91 @@ export const ObtenerClasesFaltantesByIdEstudiante = (req, res) => {
   });
 }
 
-export const verificarRequisito = (req, res) => {
-  // const id_clase = req.params.id_clase;
-  // const num_cuenta = req.params.num_cuenta;
-  const id_clase = req.query.id_clase; // Cambiar req.params por req.query
-  const num_cuenta = req.query.num_cuenta; // Cambiar req.params por req.query
+// export const verificarRequisito = (req, res) => {
+//   // const id_clase = req.params.id_clase;
+//   // const num_cuenta = req.params.num_cuenta;
+//   const id_clase = req.query.id_clase; // Cambiar req.params por req.query
+//   const num_cuenta = req.query.num_cuenta; // Cambiar req.params por req.query
 
-  //AQUI DEBE IR OTRO IF DEL ID DE LA CARRERA PARA ASI EJECUTAR UNO U OTRO CODIGO
+//   //AQUI DEBE IR OTRO IF DEL ID DE LA CARRERA PARA ASI EJECUTAR UNO U OTRO CODIGO
+//   // Consultar los requisitos de la clase solicitada
+//   const query = `SELECT Requisito1, Requisito2 FROM c_ing_sistemas WHERE IdClase = ${id_clase}`;
+
+//   db.query(query, (err, result) => {
+//     if (err) {
+//       console.error('Error al consultar los requisitos de la clase: ', err);
+//       res.status(500).json({ error: 'Ocurrió un error al verificar los requisitos de la clase' });
+//       return;
+//     }
+
+//     if (result.length === 0) {
+//       res.status(404).json({ error: 'La clase especificada no existe' });
+//       return;
+//     }
+
+//     const requisito1 = result[0].Requisito1;
+//     const requisito2 = result[0].Requisito2;
+//     console.log(requisito1, requisito2);
+
+//     // Consultar si el estudiante ha aprobado los requisitos
+//     // const estudianteId = 20231021; // ID del estudiante (debe obtenerse de alguna manera)
+
+//     let requisitosQuery = '';
+
+//     if (requisito1) {
+//       requisitosQuery += `
+//         SELECT COUNT(*) AS count
+//         FROM clase_pasada
+//         WHERE id_clase = ${requisito1}
+//           AND id_estudiante = ${num_cuenta}
+//           AND nota >= 65
+//       `;
+//     }
+
+//     if (requisito2) {
+//       if (requisitoQuery) {
+//         requisitosQuery += ' UNION ';
+//       }
+
+//       requisitosQuery += `
+//         SELECT COUNT(*)
+//         FROM clase_pasada
+//         WHERE id_clase = ${requisito2}
+//           AND id_estudiante = ${num_cuenta}
+//           AND nota >= 65
+//       `;
+//     }
+
+//     if (!requisito1 && !requisito2) {
+//       // La clase no tiene requisitos
+//       res.json({ resultado: 'El estudiante cumple con los requisitos para la clase solicitada' });
+//       // res.json({ resultado: 'La clase no tiene requisitos' });
+
+//       return;
+//     }
+
+//     db.query(requisitosQuery, (err, result) => {
+//       if (err) {
+//         console.error('Error al verificar los requisitos del estudiante: ', err);
+//         res.status(500).json({ error: 'Ocurrió un error al verificar los requisitos del estudiante' });
+//         return;
+//       }
+
+//       const count = result.reduce((total, row) => total + row.count, 0);
+//       // console.log(result.length);
+//       if (count === result.length) {
+//         res.json({ resultado: 'El estudiante cumple con los requisitos para la clase solicitada' });
+//       } else {
+//         res.json({ resultado: 'El estudiante no cumple con los requisitos para la clase solicitada' });
+//       }
+//     });
+//   });
+// }
+
+export const verificarRequisito = (req, res) => {
+  const id_clase = req.query.id_clase;
+  const num_cuenta = req.query.num_cuenta;
+
   // Consultar los requisitos de la clase solicitada
   const query = `SELECT Requisito1, Requisito2 FROM c_ing_sistemas WHERE IdClase = ${id_clase}`;
 
@@ -536,11 +614,8 @@ export const verificarRequisito = (req, res) => {
 
     const requisito1 = result[0].Requisito1;
     const requisito2 = result[0].Requisito2;
-    console.log(requisito1, requisito2);
 
     // Consultar si el estudiante ha aprobado los requisitos
-    // const estudianteId = 20231021; // ID del estudiante (debe obtenerse de alguna manera)
-
     let requisitosQuery = '';
 
     if (requisito1) {
@@ -554,7 +629,7 @@ export const verificarRequisito = (req, res) => {
     }
 
     if (requisito2) {
-      if (requisitoQuery) {
+      if (requisitosQuery) {
         requisitosQuery += ' UNION ';
       }
 
@@ -570,8 +645,6 @@ export const verificarRequisito = (req, res) => {
     if (!requisito1 && !requisito2) {
       // La clase no tiene requisitos
       res.json({ resultado: 'El estudiante cumple con los requisitos para la clase solicitada' });
-      // res.json({ resultado: 'La clase no tiene requisitos' });
-
       return;
     }
 
@@ -583,7 +656,7 @@ export const verificarRequisito = (req, res) => {
       }
 
       const count = result.reduce((total, row) => total + row.count, 0);
-      // console.log(result.length);
+
       if (count === result.length) {
         res.json({ resultado: 'El estudiante cumple con los requisitos para la clase solicitada' });
       } else {
@@ -591,7 +664,7 @@ export const verificarRequisito = (req, res) => {
       }
     });
   });
-}
+};
 
 
 export const SeccionesPorClase = (req, res) => {
