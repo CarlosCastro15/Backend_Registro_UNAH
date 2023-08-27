@@ -678,44 +678,48 @@ export const verificarRequisito = (req, res) => {
 
 export const SeccionesPorClase = (req, res) => {
   const id_clase = req.query.id_clase;
+  const anio = req.query.anio;
+  const periodo = req.query.periodo;
 
-//   SELECT 
-//     s.*,
-//     d.nombres AS nombres_docente,
-//     d.apellidos AS apellidos_docente,
-//     a.horainicio,
-//     a.horafin,
-//     a.dias
-// FROM 
-//     seccion s
-// JOIN 
-//     docente d ON s.num_empleado = d.num_empleado
-// JOIN 
-//     aula a ON s.id_aula = a.id_aula
-// WHERE 
-//     s.id_clase = 1
-//     AND s.anio = '2023-07-19 00:00:00'
-//     AND s.periodo = 'II-PAC';
 
-  const query = `
-SELECT 
-  s.*,
-  d.nombres AS nombres_docente,
-  d.apellidos AS apellidos_docente,
-  a.horainicio,
-  a.horafin,
-  a.dias
+
+    const query = `  SELECT 
+    s.*,
+    d.nombres AS nombres_docente,
+    d.apellidos AS apellidos_docente,
+    a.horainicio,
+    a.horafin,
+    a.dias
 FROM 
-  seccion s
+    seccion s
 JOIN 
-  docente d ON s.num_empleado = d.num_empleado
+    docente d ON s.num_empleado = d.num_empleado
 JOIN 
-  aula a ON s.id_aula = a.id_aula
+    aula a ON s.id_aula = a.id_aula
 WHERE 
-  s.id_clase = ?;
-  `;
+    s.id_clase = ?
+    AND s.anio = ?
+    AND s.periodo = ?;`;
 
-  db.query(query, [id_clase], (err, results) => {
+//   const query = `
+// SELECT 
+//   s.*,
+//   d.nombres AS nombres_docente,
+//   d.apellidos AS apellidos_docente,
+//   a.horainicio,
+//   a.horafin,
+//   a.dias
+// FROM 
+//   seccion s
+// JOIN 
+//   docente d ON s.num_empleado = d.num_empleado
+// JOIN 
+//   aula a ON s.id_aula = a.id_aula
+// WHERE 
+//   s.id_clase = ?;
+//   `;
+
+  db.query(query, [id_clase,anio, periodo], (err, results) => {
     if (err) {
       console.error('Error al ejecutar la consulta:', err);
       res.status(500).json({ error: 'Error al ejecutar la consulta' });
