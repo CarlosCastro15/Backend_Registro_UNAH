@@ -492,14 +492,23 @@ export const traerDeptosByIdCarrera = (req, res) => {
 
 export const ObtenerClasesFaltantesByIdEstudiante = (req, res) => {
   const { id_carrera, id_estudiante } = req.query;
+
   const query = `
-    SELECT c.id_clase, c.nombre
-    FROM clase c
-    JOIN carrera cr ON c.id_carrera = cr.id
-    LEFT JOIN clase_pasada cp ON c.id_clase = cp.id_clase AND cp.id_estudiante = ?
-    WHERE cr.id = ?
-      AND (cp.id_estudiante IS NULL OR cp.nota < 65);
+  SELECT c.id_clase, c.codigo, c.nombre
+  FROM clase c
+  JOIN carrera cr ON c.id_carrera = cr.id
+  LEFT JOIN clase_pasada cp ON c.id_clase = cp.id_clase AND cp.id_estudiante = ?
+  WHERE cr.id = ?
+    AND (cp.id_estudiante IS NULL OR cp.nota < 65)
   `;
+  // const query = `
+  //   SELECT c.id_clase, c.nombre
+  //   FROM clase c
+  //   JOIN carrera cr ON c.id_carrera = cr.id
+  //   LEFT JOIN clase_pasada cp ON c.id_clase = cp.id_clase AND cp.id_estudiante = ?
+  //   WHERE cr.id = ?
+  //     AND (cp.id_estudiante IS NULL OR cp.nota < 65);
+  // `;
 
   db.query(query, [id_estudiante, id_carrera], (err, results) => {
     if (err) {
