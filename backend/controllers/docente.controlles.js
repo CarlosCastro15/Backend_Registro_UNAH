@@ -195,15 +195,13 @@ export const docentecarreranombre = (req, res) => {
   const CarreraNombre = req.params.nombre;
   const CentroNombre = req.params.centro
 
-  const sql = `SELECT d.num_empleado, d.nombres, d.apellidos
-              FROM docente d
-              JOIN carrera c ON d.carrera_id = c.id
-              JOIN centro ct ON d.centro_id = ct.id
-              WHERE c.nombre = ?
-              AND ct.nombre = ?
-              AND (
-              SELECT COUNT(*) FROM seccion s WHERE s.num_empleado = d.num_empleado
-              ) < 3`;
+  const sql = `SELECT d.num_empleado, d.nombres, d.apellidos, d.unidades_valo
+    FROM docente d
+    JOIN carrera c ON d.carrera_id = c.id
+    JOIN centro ct ON d.centro_id = ct.id
+    WHERE c.nombre = ?
+    AND ct.nombre = ?
+    AND d.unidades_valo > 0;`
 
   // Ejecutar la consulta con los parámetros proporcionados
   db.query(sql, [CarreraNombre, CentroNombre], (err, results) => {

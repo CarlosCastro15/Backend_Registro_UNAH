@@ -304,7 +304,73 @@ export const seccionActualizarCupos = (req, res) => {
 
 // Define el endpoint para insertar datos en la tabla 'seccion'
 
- export const insertarSeccion = (req, res) => {
+//  export const insertarSeccion = (req, res) => {
+//   const {
+//     id_clase,
+//     anio,
+//     periodo,
+//     num_empleado,
+//     id_aula,
+//     dias,
+//     cupos,
+//     id_edificio,
+//     horainicio,
+//     horafin,
+//     unidades_valo
+//   } = req.body;
+
+//   const query = `
+//     INSERT INTO seccion
+//     (id_clase, anio, periodo, num_empleado, id_aula, dias, cupos, id_edificio, horainicio, horafin)
+//     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+//   `;
+
+//   const values = [
+//     id_clase,
+//     anio,
+//     periodo,
+//     num_empleado,
+//     id_aula,
+//     dias,
+//     cupos,
+//     id_edificio,
+//     horainicio,
+//     horafin
+//   ];
+
+//   db.query(query, values, (err, result) => {
+//     if (err) {
+//       console.error('Error al insertar datos:', err);
+//       res.status(500).json({ error: 'Error al insertar datos en la tabla seccion' });
+//     } else {
+//       res.status(201).json({ message: 'Datos insertados correctamente en la tabla seccion' });
+//     }
+//   });
+
+//   const sql = 'UPDATE aula SET disponibilidad = 1 WHERE id_aula = ?';
+
+//   db.query(sql, [id_aula], (err, results) => {
+//     if (err) {
+//       console.error('Error al actualizar la disponibilidad: ', err);
+//       return;
+//     }
+//     console.log('Disponibilidad actualizada correctamente');
+//     console.log(results);
+//   });
+
+//   const sqlunidades = 'UPDATE docente SET unidades_valo';
+
+//   db.query(sqlunidades, [unidades_valo], (err, results) => {
+//     if (err) {
+//       console.error('Error al actualizar la disponibilidad: ', err);
+//       return;
+//     }
+//     console.log('Disponibilidad actualizada correctamente');
+//     console.log(results);
+//   });
+// }
+
+export const insertarSeccion = (req, res) => {
   const {
     id_clase,
     anio,
@@ -315,7 +381,8 @@ export const seccionActualizarCupos = (req, res) => {
     cupos,
     id_edificio,
     horainicio,
-    horafin
+    horafin,
+    unidades_valo
   } = req.body;
 
   const query = `
@@ -356,7 +423,19 @@ export const seccionActualizarCupos = (req, res) => {
     console.log('Disponibilidad actualizada correctamente');
     console.log(results);
   });
+
+  const sqlunidades = 'UPDATE docente SET unidades_valo = unidades_valo - ? WHERE num_empleado = ?';
+
+  db.query(sqlunidades, [unidades_valo, num_empleado], (err, results) => {
+    if (err) {
+      console.error('Error al actualizar las unidades valorativas: ', err);
+      return;
+    }
+    console.log('Unidades valorativas actualizadas correctamente');
+    console.log(results);
+  });
 }
+
     
 
 
