@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {EdificioID,aulasDisponibles,proceso,ingresarProceso,eliminarProceso} from '../controllers/edificio.controlles.js'
+import {EdificioID,aulasDisponibles,proceso,ingresarProceso,eliminarProceso, procesoCarga, ingresarProcesoCarga} from '../controllers/edificio.controlles.js'
 
 const router = Router()
 
@@ -12,6 +12,8 @@ router.get('/aulas-disponibles', aulasDisponibles)
 //traer el proceso de matricula //DAVID
 router.get('/proceso', proceso)
 
+
+
 //ingresar el proceso de matricula //DAVID
 router.post('/insertarproceso', ingresarProceso)
 
@@ -19,9 +21,8 @@ router.post('/insertarproceso', ingresarProceso)
 router.delete('/proceso/:id', eliminarProceso)
 
 
+router.get('/procesoCarga', procesoCarga)
 
-
-
-
+router.post('/insertarprocesoCarga', ingresarProcesoCarga)
 
 export default router 

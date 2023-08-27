@@ -1,25 +1,25 @@
 import { db } from '../db.js'
-import jwt from'jsonwebtoken'
-import nodemailer from'nodemailer'
+import jwt from 'jsonwebtoken'
+import nodemailer from 'nodemailer'
 
 
 export const EdificioID = (req, res) => {
-    
-      // Consulta a la base de datos
-      const query = `SELECT * FROM edificio`;
-    
-      db.query(query, (err, rows) => {
-        if (err) {
-          console.error('Error al ejecutar la consulta: ', err);
-          res.status(500).send('Error del servidor');
-        } else {
-          res.json(rows);
-        }
-      });
+
+  // Consulta a la base de datos
+  const query = `SELECT * FROM edificio`;
+
+  db.query(query, (err, rows) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta: ', err);
+      res.status(500).send('Error del servidor');
+    } else {
+      res.json(rows);
+    }
+  });
 }
 
 export const aulasDisponibles = (req, res) => {
-    const query = `SELECT aula.*, edificio.nombre
+  const query = `SELECT aula.*, edificio.nombre
                   FROM aula
                   INNER JOIN edificio ON aula.id_edificio = edificio.id_edificio
                   WHERE aula.disponibilidad = true
@@ -31,43 +31,43 @@ export const aulasDisponibles = (req, res) => {
                   AND aula.horainicio = a2.horainicio
                   AND aula.num_aula = a2.num_aula
                   AND aula.id_edificio = a2.id_edificio)`;
-  
-    // Ejecutar la consulta
-    db.query(query, (err, results) => {
-      if (err) {
-        console.error('Error al ejecutar la consulta:', err);
-        res.status(500).send('Error en el servidor');
-        return;
-      }
-  
-      // Enviar los resultados como respuesta
-      res.json(results);
-    });
-  }
 
-  export const proceso = (req, res) => {
-    
-    // Consulta a la base de datos
-    const query = `SELECT * FROM proceso`;
-  
-    db.query(query, (err, rows) => {
-      if (err) {
-        console.error('Error al ejecutar la consulta: ', err);
-        res.status(500).send('Error del servidor');
-      } else {
-        res.json(rows);
-      }
-    });
+  // Ejecutar la consulta
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta:', err);
+      res.status(500).send('Error en el servidor');
+      return;
+    }
+
+    // Enviar los resultados como respuesta
+    res.json(results);
+  });
+}
+
+export const proceso = (req, res) => {
+
+  // Consulta a la base de datos
+  const query = `SELECT * FROM proceso`;
+
+  db.query(query, (err, rows) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta: ', err);
+      res.status(500).send('Error del servidor');
+    } else {
+      res.json(rows);
+    }
+  });
 }
 
 export const ingresarProceso = (req, res) => {
-  const {anio,periodo,horainicio,horafin,indiceI,fechainicioI,indiceII,fechainicioII,indiceIII,fechainicioIII,indiceIIII,fechainicioIIII,indiceIIIII,fechainicioIIIII} = req.body;
+  const { anio, periodo, horainicio, horafin, indiceI, fechainicioI, indiceII, fechainicioII, indiceIII, fechainicioIII, indiceIIII, fechainicioIIII, indiceIIIII, fechainicioIIIII } = req.body;
 
   // Consulta SQL para insertar los datos en la tabla "proceso"
   const sql = `INSERT INTO proceso (anio,periodo,horainicio,horafin,indiceI,fechainicioI,indiceII,fechainicioII,indiceIII,fechainicioIII,indiceIIII,fechainicioIIII,indiceIIIII,fechainicioIIIII) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   // Ejecutar la consulta SQL con los datos proporcionados
-  db.query(sql, [anio,periodo,horainicio,horafin,indiceI,fechainicioI,indiceII,fechainicioII,indiceIII,fechainicioIII,indiceIIII,fechainicioIIII,indiceIIIII,fechainicioIIIII
+  db.query(sql, [anio, periodo, horainicio, horafin, indiceI, fechainicioI, indiceII, fechainicioII, indiceIII, fechainicioIII, indiceIIII, fechainicioIIII, indiceIIIII, fechainicioIIIII
   ], (error, results) => {
     if (error) {
       console.error('Error al ingresar los datos:', error);
@@ -91,6 +91,40 @@ export const eliminarProceso = (req, res) => {
       res.status(500).json({ error: 'Error al eliminar la tabla' });
     } else {
       res.json({ message: 'Proceso eliminada correctamente' });
+    }
+  });
+}
+
+
+//aqui modifico angel 26/08/23
+export const procesoCarga = (req, res) => {
+
+  // Consulta a la base de datos
+  const query = `SELECT * FROM proceso_carga`;
+
+  db.query(query, (err, rows) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta: ', err);
+      res.status(500).send('Error del servidor');
+    } else {
+      res.json(rows);
+    }
+  });
+}
+
+export const ingresarProcesoCarga = (req, res) => {
+  const { anio, periodo, fechainicioI, fechainicioII} = req.body;
+  console.log({ anio, periodo, fechainicioI, fechainicioII});
+  // Consulta SQL para insertar los datos en la tabla "proceso"
+  const sql = `INSERT INTO proceso_carga (anio,periodo,fechainicioI,fechainicioII) VALUES (?, ?, ?, ?)`;
+
+  // Ejecutar la consulta SQL con los datos proporcionados
+  db.query(sql, [anio, periodo, fechainicioI, fechainicioII], (error, results) => {
+    if (error) {
+      console.error('Error al ingresar los datos:', error);
+      res.status(500).json({ error: 'Error al ingresar los datos' });
+    } else {
+      res.json({ message: 'Datos ingresados correctamente' });
     }
   });
 }

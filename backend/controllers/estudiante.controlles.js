@@ -679,6 +679,24 @@ export const verificarRequisito = (req, res) => {
 export const SeccionesPorClase = (req, res) => {
   const id_clase = req.query.id_clase;
 
+//   SELECT 
+//     s.*,
+//     d.nombres AS nombres_docente,
+//     d.apellidos AS apellidos_docente,
+//     a.horainicio,
+//     a.horafin,
+//     a.dias
+// FROM 
+//     seccion s
+// JOIN 
+//     docente d ON s.num_empleado = d.num_empleado
+// JOIN 
+//     aula a ON s.id_aula = a.id_aula
+// WHERE 
+//     s.id_clase = 1
+//     AND s.anio = '2023-07-19 00:00:00'
+//     AND s.periodo = 'II-PAC';
+
   const query = `
 SELECT 
   s.*,
@@ -809,21 +827,47 @@ export const verificarHorario = (req, res) => {
   });
 };
 
+// export const matriculaSeccion = (req, res) => {
+//   const numCuenta = req.query.num_cuenta;
+//   const id_seccion = req.query.id_seccion;
+
+
+//   const sql = 'INSERT INTO matricula (num_cuenta, id_seccion) VALUES (?,?)';
+//   db.query(sql, [numCuenta, id_seccion], (error, results) => {
+//     if (error) {
+//       console.error('Error al ingresar los datos:', error);
+//       res.status(500).json({ error: 'Error al ingresar los datos' });
+//     } else {
+//       res.json({ message: 'Datos ingresados correctamente' });
+//     }
+//   });
+// }
+
 export const matriculaSeccion = (req, res) => {
   const numCuenta = req.query.num_cuenta;
   const id_seccion = req.query.id_seccion;
 
+  const sqlInsert = 'INSERT INTO matricula (num_cuenta, id_seccion) VALUES (?,?)';
+  const sqlUpdateCupo = 'UPDATE seccion SET cupos = cupos - 1 WHERE id_seccion = ?';
 
-  const sql = 'INSERT INTO matricula (num_cuenta, id_seccion) VALUES (?,?)';
-  db.query(sql, [numCuenta, id_seccion], (error, results) => {
+  db.query(sqlInsert, [numCuenta, id_seccion], (error, results) => {
     if (error) {
       console.error('Error al ingresar los datos:', error);
       res.status(500).json({ error: 'Error al ingresar los datos' });
     } else {
-      res.json({ message: 'Datos ingresados correctamente' });
+      db.query(sqlUpdateCupo, [id_seccion], (error, updateResults) => {
+        if (error) {
+          console.error('Error al actualizar el cupo:', error);
+          // Si ocurre un error al actualizar el cupo, podrías considerar revertir la inserción anterior
+          res.status(500).json({ error: 'Error al actualizar el cupo' });
+        } else {
+          res.json({ message: 'Datos ingresados correctamente y cupo actualizado' });
+        }
+      });
     }
   });
-}
+};
+
 
 
 
