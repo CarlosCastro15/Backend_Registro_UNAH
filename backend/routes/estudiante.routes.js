@@ -9,7 +9,7 @@ import {getEstudiante,
     notaEstudiante,clasesByIdEstudiante
     ,eliminarClase, clases_matriculadas
     ,clasesAlumno,insertarclasepasada,estudianteSeccionObtener,
-    clases_historial,enviarCorreoNumCuenta, traerDeptosByIdCarrera, ObtenerClasesFaltantesByIdEstudiante, verificarRequisito, VerificaClasePorIdEst, SeccionesPorClase, verificarHorario, matriculaSeccion} from '../controllers/estudiante.controlles.js'
+    clases_historial,enviarCorreoNumCuenta, traerDeptosByIdCarrera, ObtenerClasesFaltantesByIdEstudiante, verificarRequisito, VerificaClasePorIdEst, SeccionesPorClase, verificarHorario, matriculaSeccion, getCarreraEstudianteById} from '../controllers/estudiante.controlles.js'
 
 const router = Router()
 
@@ -80,6 +80,10 @@ router.get('/verificar-horario', verificarHorario)
 
 //MATRICULA EL ESTUDIANTE EN UNA SECCION
 router.post('/insertMatricula', matriculaSeccion);
+
+
+//OBTENER EL ID DE LA CARRERA POR MEDIO DEL ID DEL ESTUDIANTE
+router.get('/carreraDeEstudiante', getCarreraEstudianteById);
 
 
 export default router 

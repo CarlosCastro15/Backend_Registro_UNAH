@@ -1,96 +1,96 @@
-import {db} from '../db.js'
-import jwt from'jsonwebtoken'
-import nodemailer from'nodemailer'
+import { db } from '../db.js'
+import jwt from 'jsonwebtoken'
+import nodemailer from 'nodemailer'
 import crypto from 'crypto'
 
 export const getEstudiante = (req, res) => {
-    const sql = 'SELECT * FROM estudiante';
+  const sql = 'SELECT * FROM estudiante';
 
-    db.query(sql, [req.body.email, req.body.password], (err, data) => {
-        if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
-        if (data.length > 0) {
-            const id = data[0].num_cuenta;
-            const token = jwt.sign({ id }, 'grupo3', { expiresIn: 60 });
+  db.query(sql, [req.body.email, req.body.password], (err, data) => {
+    if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
+    if (data.length > 0) {
+      const id = data[0].num_cuenta;
+      const token = jwt.sign({ id }, 'grupo3', { expiresIn: 60 });
 
-            return res.json({ login: true, usuario: data, token: token });
+      return res.json({ login: true, usuario: data, token: token });
 
-        } else {
-            return res.json({ login: false, msg: 'Sin registro' })
-        }
-    })
+    } else {
+      return res.json({ login: false, msg: 'Sin registro' })
+    }
+  })
 }
 
 export const getEstudianteId = (req, res) => {
-    const idEstudiante = req.params.num_cuenta;
-  
-    const sql = 'SELECT e.*, c.nombre AS nombre_carrera, ce.nombre AS nombre_centro FROM estudiante e JOIN carrera c ON e.carrera_id = c.id JOIN centro ce ON e.centro_id = ce.id WHERE e.num_cuenta = ?';
-    db.query(sql, [idEstudiante], (err, results) => {
-      if (err) {
-        console.error('Error al obtener el estudiante: ' + err);
-        res.status(500).json({ error: 'Error al obtener el estudiante' });
-        return;
-      }
-  
-      if (results.length === 0) {
-        res.status(404).json({ error: 'Estudiante no encontrado' });
-        return;
-      }
-      const estudiante = results[0];
-      res.json(estudiante);
-    });
+  const idEstudiante = req.params.num_cuenta;
+
+  const sql = 'SELECT e.*, c.nombre AS nombre_carrera, ce.nombre AS nombre_centro FROM estudiante e JOIN carrera c ON e.carrera_id = c.id JOIN centro ce ON e.centro_id = ce.id WHERE e.num_cuenta = ?';
+  db.query(sql, [idEstudiante], (err, results) => {
+    if (err) {
+      console.error('Error al obtener el estudiante: ' + err);
+      res.status(500).json({ error: 'Error al obtener el estudiante' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Estudiante no encontrado' });
+      return;
+    }
+    const estudiante = results[0];
+    res.json(estudiante);
+  });
 }
 
 
 export const deleteEstudiante = (req, res) => {
-    const adminId = req.params.num_cuenta;
+  const adminId = req.params.num_cuenta;
 
-    const sql = `DELETE FROM estudiante WHERE num_cuenta = ${adminId}`;
-  
-    db.query(sql, (error, results) => {
-      if (error) {
-        console.error('Error al eliminar el estudiante:', error);
-        res.status(500).json({ mensaje: 'Error al eliminar el estudiante' });
+  const sql = `DELETE FROM estudiante WHERE num_cuenta = ${adminId}`;
+
+  db.query(sql, (error, results) => {
+    if (error) {
+      console.error('Error al eliminar el estudiante:', error);
+      res.status(500).json({ mensaje: 'Error al eliminar el estudiante' });
+    } else {
+      if (results.affectedRows === 0) {
+        res.status(404).json({ mensaje: 'No se encontró el estudiante' });
       } else {
-        if (results.affectedRows === 0) {
-          res.status(404).json({ mensaje: 'No se encontró el estudiante' });
-        } else {
-          res.json({ mensaje: 'estudiante eliminado exitosamente' });
-        }
+        res.json({ mensaje: 'estudiante eliminado exitosamente' });
       }
-    })
+    }
+  })
 }
 
 export const updateEstudiante = (req, res) => {
-        const adminId = req.params.num_cuenta;
-        const adminData = req.body; // Se espera que los datos a actualizar se envíen en el cuerpo de la solicitud
-      
-        const query = `UPDATE estudiante SET ? WHERE num_cuenta = ${adminId}`;
-      
-        db.query(query, adminData, (error, results) => {
-          if (error) {
-            console.error('Error al actualizar el administrador:', error);
-            res.status(500).json({ mensaje: 'Error al actualizar el estudiante' });
-          } else {
-            if (results.affectedRows === 0) {
-              res.status(404).json({ mensaje: 'No se encontró el estudiante' });
-            } else {
-              res.json({ mensaje: 'estudiante actualizado exitosamente' });
-            }
-          }
-          /*{
-           if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
-            if (data.length > 0) {
-                const id = data[0].id;
-                const token = jwt.sign({ id }, 'grupo3', { expiresIn: 60 });
-    
-                return res.json({ login: true, usuario: data, token: token });
-    
-            } else {
-                return res.json({ login: false, msg: 'Sin registro' })
-            }
-        }*/
-        })
+  const adminId = req.params.num_cuenta;
+  const adminData = req.body; // Se espera que los datos a actualizar se envíen en el cuerpo de la solicitud
+
+  const query = `UPDATE estudiante SET ? WHERE num_cuenta = ${adminId}`;
+
+  db.query(query, adminData, (error, results) => {
+    if (error) {
+      console.error('Error al actualizar el administrador:', error);
+      res.status(500).json({ mensaje: 'Error al actualizar el estudiante' });
+    } else {
+      if (results.affectedRows === 0) {
+        res.status(404).json({ mensaje: 'No se encontró el estudiante' });
+      } else {
+        res.json({ mensaje: 'estudiante actualizado exitosamente' });
       }
+    }
+    /*{
+     if (err) return res.json("Error") //si nos retorna un error nos mandara como respuesta esto
+      if (data.length > 0) {
+          const id = data[0].id;
+          const token = jwt.sign({ id }, 'grupo3', { expiresIn: 60 });
+ 
+          return res.json({ login: true, usuario: data, token: token });
+ 
+      } else {
+          return res.json({ login: false, msg: 'Sin registro' })
+      }
+  }*/
+  })
+}
 
 //ENDPOINT PARA ENVIO DE CORREO AL ESTUDIANTE
 export const envioCorreoEstudiante = (req, res) => {
@@ -133,59 +133,59 @@ export const envioCorreoEstudiante = (req, res) => {
 }
 
 
-  // Endpoint para restablecer la contraseña estudiante
-  export const restaContraEstudiante = (req, res) => {
-    const { token, email, password } = req.body;
-  
-    // Actualizar la contraseña en la base de datos
-    const sql = 'UPDATE estudiante SET password_institucional = ? WHERE correo_institucional = ?';
-    db.query(sql, [password, email], (error, results) => {
-      if (error) {
-        console.log(error);
-        return res.status(500).json({ message: 'Error al restablecer la contraseña.' });
-      }
-      if (results.affectedRows === 0) {
-        return res.status(404).json({ message: 'Correo electrónico no encontrado.' });
-      }
-  
-      // Si todo va bien, enviar una respuesta exitosa
-      res.status(200).json({ message: 'Contraseña restablecida exitosamente.' });
-    });
-  }
+// Endpoint para restablecer la contraseña estudiante
+export const restaContraEstudiante = (req, res) => {
+  const { token, email, password } = req.body;
 
-  export const actualizarEstuDescri = (req, res) => {
-    const numCuenta = req.params.num_cuenta;
-    const nuevaDescripcion = req.body.descripcion;
-  
-    const sql = 'UPDATE estudiante SET descripcion = ? WHERE num_cuenta = ?';
-    db.query(sql, [nuevaDescripcion, numCuenta], (error, results) => {
-      if (error) {
-        console.error('Error al actualizar la descripción:', error);
-        res.status(500).send('Error al actualizar la descripción del estudiante');
-      } else {
-        res.send('Descripción del estudiante actualizada correctamente');
-      }
-    });
-  }
+  // Actualizar la contraseña en la base de datos
+  const sql = 'UPDATE estudiante SET password_institucional = ? WHERE correo_institucional = ?';
+  db.query(sql, [password, email], (error, results) => {
+    if (error) {
+      console.log(error);
+      return res.status(500).json({ message: 'Error al restablecer la contraseña.' });
+    }
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ message: 'Correo electrónico no encontrado.' });
+    }
+
+    // Si todo va bien, enviar una respuesta exitosa
+    res.status(200).json({ message: 'Contraseña restablecida exitosamente.' });
+  });
+}
+
+export const actualizarEstuDescri = (req, res) => {
+  const numCuenta = req.params.num_cuenta;
+  const nuevaDescripcion = req.body.descripcion;
+
+  const sql = 'UPDATE estudiante SET descripcion = ? WHERE num_cuenta = ?';
+  db.query(sql, [nuevaDescripcion, numCuenta], (error, results) => {
+    if (error) {
+      console.error('Error al actualizar la descripción:', error);
+      res.status(500).send('Error al actualizar la descripción del estudiante');
+    } else {
+      res.send('Descripción del estudiante actualizada correctamente');
+    }
+  });
+}
 
 
-  //listar los alumnos segun el id de la clase //acordate
-  export const clasesAlumno = (req, res) => {
-    const id_clase = req.params.id_clase;
-  
-    const query = `
+//listar los alumnos segun el id de la clase //acordate
+export const clasesAlumno = (req, res) => {
+  const id_clase = req.params.id_clase;
+
+  const query = `
       SELECT cp.nota, e.num_cuenta, e.primer_nombre, e.primer_apellido, e.correo_institucional
       FROM clase_pasada cp
       JOIN estudiante e ON cp.id_estudiante = e.num_cuenta
       WHERE cp.id_clase = ?`;
-  
-      db.query(query, [id_clase], (err, results) => {
-      if (err) throw err;
-      res.json(results);
-    });
-  };
 
-  // Endpoint para realizar la consulta listar los alumnos segun el id de la clase //acordate
+  db.query(query, [id_clase], (err, results) => {
+    if (err) throw err;
+    res.json(results);
+  });
+};
+
+// Endpoint para realizar la consulta listar los alumnos segun el id de la clase //acordate
 /*export const claseAlumnoidseccion = (req, res) => {
   const id_seccion = req.params.id_seccion;
   
@@ -249,27 +249,27 @@ export const insertarclasepasada = (req, res) => {
 };
 
 
-  //editar nota del estudiante 
-  export const notaEstudiante = (req, res) => {
-    const idClase = req.params.id_clase;
-    const idEstudiante = req.params.id_estudiante;
-    const nuevaNota = req.body.nota;
-  
-    const sql = `UPDATE clase_pasada SET nota = ? WHERE id_clase = ? AND id_estudiante = ?`;
-  
-    db.query(sql, [nuevaNota, idClase, idEstudiante], (err, result) => {
-      if (err) {
-        console.error('Error al actualizar la nota: ', err);
-        res.status(500).send('Error interno del servidor');
-        return;
-      }
-  
-      res.status(200).send('Nota actualizada exitosamente');
-    });
-  };
+//editar nota del estudiante 
+export const notaEstudiante = (req, res) => {
+  const idClase = req.params.id_clase;
+  const idEstudiante = req.params.id_estudiante;
+  const nuevaNota = req.body.nota;
+
+  const sql = `UPDATE clase_pasada SET nota = ? WHERE id_clase = ? AND id_estudiante = ?`;
+
+  db.query(sql, [nuevaNota, idClase, idEstudiante], (err, result) => {
+    if (err) {
+      console.error('Error al actualizar la nota: ', err);
+      res.status(500).send('Error interno del servidor');
+      return;
+    }
+
+    res.status(200).send('Nota actualizada exitosamente');
+  });
+};
 
 
-  //-------------
+//-------------
 //OBTENER CLASESFALTANTES POR MEDIO DEL ID DEL ESTUDIANTE
 
 export const clasesByIdEstudiante = (req, res) => {
@@ -393,7 +393,7 @@ export const estudianteSeccionObtener = (req, res) => {
 //Historial
 export const clases_historial = (req, res) => {
   const numCuenta = req.params.num_cuenta;
- 
+
 
   const sqlQuery = `
   SELECT cp.id, cp.nota,  c.codigo, c.nombre AS nombre, s.periodo,year(s.anio) as anio
@@ -446,7 +446,7 @@ export const enviarCorreoNumCuenta = (req, res) => {
       }
     });
 
-    
+
     const mailOptions = {
       from: '07castro.carlos@gmail.com',
       to: student.correo_institucional,
@@ -469,26 +469,143 @@ export const enviarCorreoNumCuenta = (req, res) => {
 
 
 //aqui modifico angel
-export const traerDeptosByIdCarrera = (req, res) => {
+// export const traerDeptosByIdCarrera = (req, res) => {
+//   // const { id_carrera } = req.query.id_carrera;
+//   const id_carrera = parseInt(req.query.id_carrera);
 
-  //Aqui sera necesario hacer el ciclo if para ver de que carrera es
-  const query = `
+//   if (id_carrera === 1) {
+//     const query = `
+//       SELECT DISTINCT c.id AS id_carrera, c.nombre AS nombre_carrera
+//       FROM clase AS cl
+//       JOIN c_ing_sistemas AS c_ing ON cl.id_clase = c_ing.IdClase
+//       JOIN carrera AS c ON cl.id_carrera = c.id;
+//     `;
+//     db.query(query, (err, results) => {
+//       if (err) {
+//         console.error('Error al ejecutar la consulta:', err);
+//         res.status(500).json({ error: 'Error al ejecutar la consulta' });
+//         return;
+//       }
+
+//       res.json(results);
+//     });
+//   } else if (id_carrera === 15) {
+//     console.log('me ejecute');
+//     const query = `
+//       SELECT DISTINCT c.id AS id_carrera, c.nombre AS nombre_carrera
+//       FROM clase AS cl
+//       JOIN c_matematicas AS c_mat ON cl.id_clase = c_mat.IdClase
+//       JOIN carrera AS c ON cl.id_carrera = c.id;
+//     `;
+//     db.query(query, (err, results) => {
+//       if (err) {
+//         console.error('Error al ejecutar la consulta:', err);
+//         res.status(500).json({ error: 'Error al ejecutar la consulta' });
+//         return;
+//       }
+
+//       res.json(results);
+//     });
+//     res.json([]);
+//   } else {
+//     res.json([{
+//       "id_carrera": 1,
+//       "nombre_carrera": "NO HAY CLASES CREADAS PARA ESTA CARRERA"
+//     }]);
+//   }
+
+// }
+
+export const traerDeptosByIdCarrera = (req, res) => {
+  const id_carrera = parseInt(req.query.id_carrera);
+
+  if (id_carrera === 1) {
+    const query = `
       SELECT DISTINCT c.id AS id_carrera, c.nombre AS nombre_carrera
       FROM clase AS cl
       JOIN c_ing_sistemas AS c_ing ON cl.id_clase = c_ing.IdClase
       JOIN carrera AS c ON cl.id_carrera = c.id;
     `;
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Error al ejecutar la consulta:', err);
+        res.status(500).json({ error: 'Error al ejecutar la consulta' });
+        return;
+      }
 
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error('Error al ejecutar la consulta:', err);
-      res.status(500).json({ error: 'Error al ejecutar la consulta' });
-      return;
-    }
+      res.json(results);
+    });
+  } else if (id_carrera === 15) {
+    const query = `
+      SELECT DISTINCT c.id AS id_carrera, c.nombre AS nombre_carrera
+      FROM clase AS cl
+      JOIN c_matematicas AS c_mat ON cl.id_clase = c_mat.IdClase
+      JOIN carrera AS c ON cl.id_carrera = c.id;
+    `;
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Error al ejecutar la consulta:', err);
+        res.status(500).json({ error: 'Error al ejecutar la consulta' });
+        return;
+      }
 
-    res.json(results);
-  });
-}
+      res.json(results);
+    });
+  } else {
+    res.json([{
+      "id_carrera": 1,
+      "nombre_carrera": "NO HAY CLASES CREADAS PARA ESTA CARRERA"
+    }]);
+  }
+};
+
+// export const ObtenerClasesFaltantesByIdEstudiante = (req, res) => {
+//   const { id_estudiante } = req.query;
+//   const id_carrera = parseInt(req.query.id_carrera);
+//   console.log(id_carrera);
+//   if (id_carrera === 1) {
+//     const query = `
+//     SELECT c.id_clase, c.codigo, c.nombre
+//     FROM clase c
+//     JOIN carrera cr ON c.id_carrera = cr.id
+//     LEFT JOIN clase_pasada cp ON c.id_clase = cp.id_clase AND cp.id_estudiante = ?
+//     JOIN c_ing_sistemas cs ON c.id_clase = cs.IdClase
+//     WHERE cr.id = ?
+//       AND (cp.id_estudiante IS NULL OR cp.nota < 65);`;
+
+//     db.query(query, [id_estudiante, id_carrera], (err, results) => {
+//       if (err) {
+//         console.error('Error al ejecutar la consulta:', err);
+//         res.status(500).json({ error: 'Error al ejecutar la consulta' });
+//         return;
+//       }
+
+//       res.json(results);
+//     });
+//   } else if (id_carrera === 15) {
+//     const query = `
+//     SELECT c.id_clase, c.codigo, c.nombre
+//     FROM clase c
+//     JOIN carrera cr ON c.id_carrera = cr.id
+//     LEFT JOIN clase_pasada cp ON c.id_clase = cp.id_clase AND cp.id_estudiante = ?
+//     JOIN c_ing_sistemas cs ON c.id_clase = cs.IdClase
+//     WHERE cr.id = ?
+//       AND (cp.id_estudiante IS NULL OR cp.nota < 65);`;
+
+//     db.query(query, [id_estudiante, id_carrera], (err, results) => {
+//       if (err) {
+//         console.error('Error al ejecutar la consulta:', err);
+//         res.status(500).json({ error: 'Error al ejecutar la consulta' });
+//         return;
+//       }
+
+//       res.json(results);
+//     });
+//   } else {
+//     res.json('No hay datos');
+//   }
+
+// }
 
 export const ObtenerClasesFaltantesByIdEstudiante = (req, res) => {
   const { id_carrera, id_estudiante } = req.query;
@@ -683,7 +800,7 @@ export const SeccionesPorClase = (req, res) => {
 
 
 
-    const query = `  SELECT 
+  const query = `  SELECT 
     s.*,
     d.nombres AS nombres_docente,
     d.apellidos AS apellidos_docente,
@@ -701,25 +818,25 @@ WHERE
     AND s.anio = ?
     AND s.periodo = ?;`;
 
-//   const query = `
-// SELECT 
-//   s.*,
-//   d.nombres AS nombres_docente,
-//   d.apellidos AS apellidos_docente,
-//   a.horainicio,
-//   a.horafin,
-//   a.dias
-// FROM 
-//   seccion s
-// JOIN 
-//   docente d ON s.num_empleado = d.num_empleado
-// JOIN 
-//   aula a ON s.id_aula = a.id_aula
-// WHERE 
-//   s.id_clase = ?;
-//   `;
+  //   const query = `
+  // SELECT 
+  //   s.*,
+  //   d.nombres AS nombres_docente,
+  //   d.apellidos AS apellidos_docente,
+  //   a.horainicio,
+  //   a.horafin,
+  //   a.dias
+  // FROM 
+  //   seccion s
+  // JOIN 
+  //   docente d ON s.num_empleado = d.num_empleado
+  // JOIN 
+  //   aula a ON s.id_aula = a.id_aula
+  // WHERE 
+  //   s.id_clase = ?;
+  //   `;
 
-  db.query(query, [id_clase,anio, periodo], (err, results) => {
+  db.query(query, [id_clase, anio, periodo], (err, results) => {
     if (err) {
       console.error('Error al ejecutar la consulta:', err);
       res.status(500).json({ error: 'Error al ejecutar la consulta' });
@@ -871,6 +988,32 @@ export const matriculaSeccion = (req, res) => {
     }
   });
 };
+
+
+export const getCarreraEstudianteById = (req, res) => {
+  const idEstudiante = req.query.num_cuenta;
+  // console.log(idEstudiante);
+
+  const sql = `SELECT carrera_id
+                FROM estudiante
+                WHERE num_cuenta = ?;`;
+  db.query(sql, [idEstudiante], (err, results) => {
+    if (err) {
+      console.error('Error al obtener carrera de estudiante: ' + err);
+      res.status(500).json({ error: 'Error al obtener carrera del estudiante' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Estudiante no encontrado' });
+      return;
+    }
+    const estudiante = results[0];
+    res.json(estudiante);
+  });
+}
+
+
 
 
 
