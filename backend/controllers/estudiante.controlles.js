@@ -243,10 +243,30 @@ export const insertarclasepasada = (req, res) => {
         }
       });
 
+      // Actualizar la nota en matricula
+      const consultaActualizarNota = `
+        UPDATE matricula
+        SET nota = ?
+        WHERE num_cuenta = ? AND id_seccion IN (
+          SELECT id_seccion
+          FROM seccion
+          WHERE id_clase = ?
+        );
+      `;
+
+      db.query(consultaActualizarNota, [nota, id_estudiante, id_clase], (err, resultadosNota) => {
+        if (err) {
+          console.error('Error al actualizar la nota en matrícula:', err.message);
+        } else {
+          console.log('Nota en matrícula actualizada exitosamente');
+        }
+      });
+
       res.status(200).send('Inserción exitosa o actualización realizada correctamente');
     }
   });
 };
+
 
 
 //editar nota del estudiante 
