@@ -32,18 +32,22 @@ export const insertarComentarios = (req, res) => {
     const periodo = req.params.periodo;
   
     const consulta = `
-      SELECT c.nombre AS nombre_clase, s.id_seccion, cp.nota, ed.num_empleado, ed.evaluado, cp.id_estudiante
-      FROM seccion s
-      JOIN clase c ON c.id_clase = s.id_clase
-      JOIN clase_pasada cp ON cp.id_clase = c.id_clase
-      JOIN evaluardocente ed ON ed.id_seccion = s.id_seccion
-      WHERE cp.id_estudiante = ?
-      AND EXISTS (
-        SELECT 1
-        FROM proceso p
-        WHERE p.anio = ?
-        AND p.periodo = ?
-      );
+    SELECT c.nombre AS nombre_clase, m.id_seccion, m.nota, ed.num_empleado, ed.evaluado, m.num_cuenta AS id_estudiante,
+    s.horainicio, s.horafin, e.nombre AS nombre_edificio, a.num_aula
+FROM matricula m
+JOIN seccion s ON s.id_seccion = m.id_seccion
+JOIN clase c ON c.id_clase = s.id_clase
+JOIN evaluardocente ed ON ed.id_seccion = s.id_seccion
+JOIN aula a ON a.id_aula = s.id_aula
+JOIN edificio e ON e.id_edificio = a.id_edificio
+WHERE m.num_cuenta = ?
+AND EXISTS (
+SELECT 1
+FROM proceso_subir_notas p
+WHERE p.anio = ?
+AND p.periodo = ?
+);
+
     `;
   
     // Ejecuta la consulta en la base de datos con los parámetros proporcionados
@@ -60,6 +64,19 @@ export const insertarComentarios = (req, res) => {
     
   export const anioperiodo = (req, res) => {
     const sqlQuery = 'SELECT anio, periodo FROM proceso WHERE disponibilidad = 1';
+  
+    db.query(sqlQuery, (err, results) => {
+      if (err) {
+        console.error('Error al ejecutar la consulta:', err);
+        res.status(500).json({ error: 'Error al obtener los datos' });
+        return;
+      }
+  
+      res.json(results);
+    });
+  };
+  export const anioperiodomatricula = (req, res) => {
+    const sqlQuery = 'SELECT anio, periodo FROM proceso_subir_notas WHERE disponibilidad = 1';
   
     db.query(sqlQuery, (err, results) => {
       if (err) {
