@@ -1014,7 +1014,62 @@ export const getCarreraEstudianteById = (req, res) => {
 }
 
 
+export const estudiantesLista = (req, res) => {
 
+  const sql = `SELECT e.*, ca.nombre AS nombre_carrera
+  FROM estudiante e
+  JOIN carrera ca ON e.carrera_id = ca.id;`;
+  
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error al obtener estudiantes: ' + err);
+      res.status(500).json({ error: 'Error al obtener estudiantes' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Estudiantes no encontrados' });
+      return;
+    }
+    
+    res.json(results); // Devolver todos los estudiantes
+  });
+}
+
+
+export const estudiantesMatricula = (req, res) => {
+
+  const sql = `SELECT 
+  e.num_cuenta,
+  e.primer_nombre,
+  e.segundo_nombre,
+  e.primer_apellido,
+  e.segundo_apellido,
+  c.nombre AS nombre_carrera,
+  COUNT(s.id_seccion) AS cantidad_secciones
+FROM estudiante e
+JOIN carrera c ON e.carrera_id = c.id
+JOIN matricula m ON e.num_cuenta = m.num_cuenta
+JOIN seccion s ON m.id_seccion = s.id_seccion
+JOIN proceso p ON s.anio = p.anio AND s.periodo = p.periodo
+WHERE p.disponibilidad = 1
+GROUP BY e.num_cuenta, e.primer_nombre, e.segundo_nombre, e.primer_apellido, e.segundo_apellido, c.nombre;`;
+  
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error al obtener estudiantes: ' + err);
+      res.status(500).json({ error: 'Error al obtener estudiantes' });
+      return;
+    }
+
+    if (results.length === 0) {
+      res.status(404).json({ error: 'Estudiantes no encontrados' });
+      return;
+    }
+    
+    res.json(results); // Devolver todos los estudiantes
+  });
+}
 
 
 

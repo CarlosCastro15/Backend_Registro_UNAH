@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import {insertarComentarios,clasesPeiodoEstudiante,anioperiodo} from '../controllers/comentarios.controlles.js'
+import {insertarComentarios,clasesPeiodoEstudiante,anioperiodo,anioperiodomatricula} from '../controllers/comentarios.controlles.js'
 
 const router = Router()
 
@@ -11,5 +11,7 @@ router.get('/consulta-clases/:idEstudiante/:anio/:periodo',clasesPeiodoEstudiant
 
 //proceso para que obtenga anio y periodo //ROBERTO
 router.get('/proceso-anio-periodo', anioperiodo);
+
+router.get('/proceso-anio-periodo-come', anioperiodomatricula);
 
 export default router 
