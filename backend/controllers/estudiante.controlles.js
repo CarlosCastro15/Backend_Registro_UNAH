@@ -212,57 +212,126 @@ export const clasesAlumno = (req, res) => {
 export const insertarclasepasada = (req, res) => {
   const { id_clase, id_estudiante, nota } = req.body;
 
-  const consulta = `
-    INSERT INTO clase_pasada (id_clase, id_estudiante, nota)
-    VALUES (?, ?, ?)
-    ON DUPLICATE KEY UPDATE nota = VALUES(nota)
+  // Verificar si ya existe un registro con la misma combinación de id_clase e id_estudiante
+  const consultaExistencia = `
+    SELECT id_clase
+    FROM clase_pasada
+    WHERE id_clase = ? AND id_estudiante = ?;
   `;
 
-  db.query(consulta, [id_clase, id_estudiante, nota], (err, resultados) => {
+  db.query(consultaExistencia, [id_clase, id_estudiante], (err, resultadosExistencia) => {
     if (err) {
-      console.error('Error al ejecutar la consulta:', err.message);
-      res.status(500).send('Error al ejecutar la consulta');
+      console.error('Error al verificar la existencia del registro:', err.message);
+      res.status(500).send('Error al verificar la existencia del registro');
     } else {
-      // Inserción exitosa o actualización realizada correctamente
-      const queryActualizarIndice = `
-      UPDATE estudiante AS e
-      SET e.indice = ROUND(
-        (SELECT AVG(CAST(nota AS DECIMAL(5, 2)))
-         FROM clase_pasada
-         WHERE id_estudiante = e.num_cuenta),
-        0
-      )
-      WHERE e.num_cuenta = ?
-      `;
+      if (resultadosExistencia.length === 0) {
+        // Si no existe el registro, realizar la inserción
+        const consultaInsercion = `
+          INSERT INTO clase_pasada (id_clase, id_estudiante, nota)
+          VALUES (?, ?, ?);
+        `;
 
-      db.query(queryActualizarIndice, [id_estudiante], (err, resultadosIndice) => {
-        if (err) {
-          console.error('Error al actualizar el índice del estudiante:', err.message);
-        } else {
-          console.log('Índice del estudiante actualizado exitosamente');
-        }
-      });
+        db.query(consultaInsercion, [id_clase, id_estudiante, nota], (err, resultadosInsercion) => {
+          if (err) {
+            console.error('Error al ejecutar la consulta de inserción:', err.message);
+            res.status(500).send('Error al ejecutar la consulta de inserción');
+          } else {
+            // Actualizar el índice del estudiante
+            const queryActualizarIndice = `
+              UPDATE estudiante AS e
+              SET e.indice = ROUND(
+                (SELECT AVG(CAST(nota AS DECIMAL(5, 2)))
+                 FROM clase_pasada
+                 WHERE id_estudiante = e.num_cuenta),
+                0
+              )
+              WHERE e.num_cuenta = ?;
+            `;
 
-      // Actualizar la nota en matricula
-      const consultaActualizarNota = `
-        UPDATE matricula
-        SET nota = ?
-        WHERE num_cuenta = ? AND id_seccion IN (
-          SELECT id_seccion
-          FROM seccion
-          WHERE id_clase = ?
-        );
-      `;
+            db.query(queryActualizarIndice, [id_estudiante], (err, resultadosIndice) => {
+              if (err) {
+                console.error('Error al actualizar el índice del estudiante:', err.message);
+              } else {
+                console.log('Índice del estudiante actualizado exitosamente');
+                // Actualizar la nota en matricula
+                const consultaActualizarNotaMatricula = `
+                  UPDATE matricula
+                  SET nota = ?
+                  WHERE num_cuenta = ? AND id_seccion IN (
+                    SELECT id_seccion
+                    FROM seccion
+                    WHERE id_clase = ?
+                  );
+                `;
 
-      db.query(consultaActualizarNota, [nota, id_estudiante, id_clase], (err, resultadosNota) => {
-        if (err) {
-          console.error('Error al actualizar la nota en matrícula:', err.message);
-        } else {
-          console.log('Nota en matrícula actualizada exitosamente');
-        }
-      });
+                db.query(consultaActualizarNotaMatricula, [nota, id_estudiante, id_clase], (err, resultadosNota) => {
+                  if (err) {
+                    console.error('Error al actualizar la nota en matrícula:', err.message);
+                  } else {
+                    console.log('Nota en matrícula actualizada exitosamente');
+                  }
+                });
 
-      res.status(200).send('Inserción exitosa o actualización realizada correctamente');
+                res.status(200).send('Inserción exitosa');
+              }
+            });
+          }
+        });
+      } else {
+        // Si el registro ya existe, actualizar la nota en clase_pasada
+        const consultaActualizacion = `
+          UPDATE clase_pasada
+          SET nota = ?
+          WHERE id_clase = ? AND id_estudiante = ?;
+        `;
+
+        db.query(consultaActualizacion, [nota, id_clase, id_estudiante], (err, resultadosActualizacion) => {
+          if (err) {
+            console.error('Error al actualizar la nota en clase_pasada:', err.message);
+            res.status(500).send('Error al actualizar la nota en clase_pasada');
+          } else {
+            // Actualizar el índice del estudiante
+            const queryActualizarIndice = `
+              UPDATE estudiante AS e
+              SET e.indice = ROUND(
+                (SELECT AVG(CAST(nota AS DECIMAL(5, 2)))
+                 FROM clase_pasada
+                 WHERE id_estudiante = e.num_cuenta),
+                0
+              )
+              WHERE e.num_cuenta = ?;
+            `;
+
+            db.query(queryActualizarIndice, [id_estudiante], (err, resultadosIndice) => {
+              if (err) {
+                console.error('Error al actualizar el índice del estudiante:', err.message);
+              } else {
+                console.log('Índice del estudiante actualizado exitosamente');
+                // Actualizar la nota en matricula
+                const consultaActualizarNotaMatricula = `
+                  UPDATE matricula
+                  SET nota = ?
+                  WHERE num_cuenta = ? AND id_seccion IN (
+                    SELECT id_seccion
+                    FROM seccion
+                    WHERE id_clase = ?
+                  );
+                `;
+
+                db.query(consultaActualizarNotaMatricula, [nota, id_estudiante, id_clase], (err, resultadosNota) => {
+                  if (err) {
+                    console.error('Error al actualizar la nota en matrícula:', err.message);
+                  } else {
+                    console.log('Nota en matrícula actualizada exitosamente');
+                  }
+                });
+
+                res.status(200).send('Actualización exitosa de la nota');
+              }
+            });
+          }
+        });
+      }
     }
   });
 };
