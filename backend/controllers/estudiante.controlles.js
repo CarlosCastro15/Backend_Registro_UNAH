@@ -323,11 +323,29 @@ export const clasesByIdEstudiante = (req, res) => {
 
 
 
+// export const eliminarClase = (req, res) => {
+//   const num_cuenta = req.params.num_cuenta;
+//   const id_seccion = req.params.id_seccion;
+
+//   const deleteQuery = 'DELETE FROM matricula WHERE num_cuenta = ? AND id_seccion = ?';
+
+//   db.query(deleteQuery, [num_cuenta, id_seccion], (err, result) => {
+//     if (err) {
+//       console.error('Error al ejecutar el DELETE:', err);
+//       res.status(500).json({ error: 'Error al eliminar el item de la tabla' });
+//       return;
+//     }
+
+//     res.json({ message: 'Item eliminado correctamente de la tabla matricula' });
+//   });
+// };
+
 export const eliminarClase = (req, res) => {
   const num_cuenta = req.params.num_cuenta;
   const id_seccion = req.params.id_seccion;
 
   const deleteQuery = 'DELETE FROM matricula WHERE num_cuenta = ? AND id_seccion = ?';
+  const sqlUpdateCupo = 'UPDATE seccion SET cupos = cupos + 1 WHERE id_seccion = ?';
 
   db.query(deleteQuery, [num_cuenta, id_seccion], (err, result) => {
     if (err) {
@@ -336,9 +354,19 @@ export const eliminarClase = (req, res) => {
       return;
     }
 
-    res.json({ message: 'Item eliminado correctamente de la tabla matricula' });
+    db.query(sqlUpdateCupo, [id_seccion], (updateErr, updateResult) => {
+      if (updateErr) {
+        console.error('Error al actualizar el cupo:', updateErr);
+        // En caso de error en la actualización, podrías considerar revertir el borrado
+        res.status(500).json({ error: 'Error al actualizar el cupo' });
+        return;
+      }
+
+      res.json({ message: 'Item eliminado correctamente de la tabla matricula y cupo actualizado' });
+    });
   });
 };
+
 
 export const clases_matriculadas = (req, res) => {
   const numCuenta = req.params.num_cuenta;
