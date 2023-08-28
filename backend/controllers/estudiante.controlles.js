@@ -444,7 +444,7 @@ export const clases_historial = (req, res) => {
 
 
   const sqlQuery = `
-  SELECT cp.id, cp.nota,  c.codigo, c.nombre AS nombre, s.periodo,year(s.anio) as anio
+  SELECT cp.id, cp.nota,  c.codigo, c.nombre AS nombre, s.periodo,year(s.anio) as anio, c.unidades_valo as uv
     FROM clase_pasada cp
     JOIN clase c ON cp.id_clase = c.id_clase
     JOIN seccion s ON c.id_clase = s.id_clase
