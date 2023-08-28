@@ -11,7 +11,7 @@ import {carrerasCentro,
      centroById, 
      getDocenteByCorreo,
       getHistorialByNumCuenta,
-      getEvaluciones} from '../controllers/docente.controlles.js'
+      getEvaluciones,clasesDocenteID} from '../controllers/docente.controlles.js'
 
 const router = Router()
 
@@ -38,6 +38,7 @@ router.get('/docente/:id', getDocenteById)
 
 ////clases segun id del docente //Roberto
 router.get('/clasesdocentes/:num_empleado', clasesDocente)
+router.get('/clasesdocentes/:num_empleado/:id_seccion', clasesDocenteID)
 
 //docente por medio de carrera  //DAVID
 router.get('/docentecarreranombre/:nombre/:centro', docentecarreranombre)

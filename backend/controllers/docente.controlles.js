@@ -188,7 +188,24 @@ export const clasesDocente = (req, res) => {
     res.json(results);
   });
 }
+export const clasesDocenteID = (req, res) => {
+  const IdDocente = req.params.num_empleado;
+  const id_seccion = req.params.id_seccion;
 
+  const sql = `SELECT seccion.*, clase.nombre AS nombre_clase
+               FROM seccion
+               INNER JOIN clase ON seccion.id_clase = clase.id_clase
+               WHERE seccion.num_empleado = ? and seccion.id_seccion=?`;
+
+  // Ejecutar la consulta con los parámetros proporcionados
+  db.query(sql, [IdDocente,id_seccion], (err, results) => {
+    if (err) {
+      console.error('Error al ejecutar la consulta: ', err);
+      res.status(500).json({ error: 'Error interno del servidor' });
+    }
+    res.json(results);
+  });
+}
 
 //docente por medio de carrera
 export const docentecarreranombre = (req, res) => {
